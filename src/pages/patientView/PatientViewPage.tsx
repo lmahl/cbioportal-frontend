@@ -65,6 +65,7 @@ import { checkNonProfiledGenesExist } from './PatientViewPageUtils';
 import PatientViewMutationsTab from './mutation/PatientViewMutationsTab';
 import PatientViewGenePanelModal from './PatientViewGenePanelModal/PatientViewGenePanelModal';
 import { PatientViewPageTabs } from './PatientViewPageTabs';
+import { ClinicalTrialMatchTable } from './clinicalTrialMatch/ClinicalTrialMatchTable';
 
 export interface IPatientViewPageProps {
     params: any; // react route
@@ -1363,6 +1364,20 @@ export default class PatientViewPage extends React.Component<
                                             )}
                                         />
                                     </div>
+                                </MSKTab>
+
+                                <MSKTab
+                                    key={7}
+                                    id={PatientViewPageTabs.ClinicalTrialsGov}
+                                    linkText="ClinicalTrialsGov"
+                                >
+                                    <ClinicalTrialMatchTable
+                                        store={this.patientViewPageStore}
+                                        clinicalTrialMatches={
+                                            this.patientViewPageStore
+                                                .clinicalTrialMatches.result
+                                        }
+                                    />
                                 </MSKTab>
 
                                 {this.patientViewPageStore.studyId ===

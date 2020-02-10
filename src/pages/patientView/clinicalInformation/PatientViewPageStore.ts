@@ -112,6 +112,16 @@ import { getVariantAlleleFrequency } from '../../../shared/lib/MutationUtils';
 import { AppStore, SiteError } from 'AppStore';
 import { getGeneFilterDefault } from './PatientViewPageStoreUtil';
 import { checkNonProfiledGenesExist } from '../PatientViewPageUtils';
+import {
+    StudyListEntry,
+    StudyList,
+} from '../clinicalTrialMatch/utils/StudyList';
+import {
+    Study,
+    ClinicalTrialsGovStudies,
+} from 'shared/api/ClinicalTrialsGovStudyStrucutre';
+import { IDetailedClinicalTrialMatch } from '../clinicalTrialMatch/ClinicalTrialMatchTable';
+import { searchStudiesForKeywordAsString } from 'shared/api/ClinicalTrialMatchAPI';
 
 type PageMode = 'patient' | 'sample';
 
@@ -1492,4 +1502,119 @@ export class PatientViewPageStore {
         },
         []
     );
+
+    readonly getStudiesFromClinicalTrialsGov = remoteData<StudyListEntry[]>(
+        {
+            await: () => [],
+            invoke: async () => {
+                var study_list = new StudyList();
+                var gene_symbols: String[] = [];
+                var sortedList;
+                var mutations: Mutation[][] = this.mergedMutationData;
+
+                mutations.forEach(function(value: Mutation[]) {
+                    gene_symbols.push(value[0].gene.hugoGeneSymbol);
+                });
+
+                for (const symbol of gene_symbols) {
+                    var result: Study[] = await this.getAllStudiesForKeyword(
+                        symbol
+                    );
+                    for (const std of result) {
+                        study_list.addStudy(std, symbol);
+                    }
+                }
+
+                console.log(study_list);
+
+                var tmp: Map<
+                    String,
+                    StudyListEntry
+                > = study_list.getStudyListEntires();
+                var arr: StudyListEntry[] = Array.from(tmp.values());
+                var sorted_arr: StudyListEntry[] = arr.sort(
+                    (a, b) => b.getNumberFound() - a.getNumberFound()
+                );
+
+                console.log(sorted_arr);
+
+                return sorted_arr;
+            },
+        },
+        []
+    );
+
+    readonly clinicalTrialMatches = remoteData<IDetailedClinicalTrialMatch[]>(
+        {
+            await: () => [this.getStudiesFromClinicalTrialsGov],
+            invoke: async () => {
+                var result: IDetailedClinicalTrialMatch[] = [];
+                for (const std of this.getStudiesFromClinicalTrialsGov.result) {
+                    var newTrial = {
+                        found: std.getNumberFound(),
+                        keywords: std.getKeywords().toString(),
+                        conditions: std
+                            .getStudy()
+                            .ProtocolSection.ConditionsModule.ConditionList.Condition.toString(),
+                        title: std.getStudy().ProtocolSection
+                            .IdentificationModule.OfficialTitle,
+                        nct: std.getStudy().ProtocolSection.IdentificationModule
+                            .NCTId,
+                        status: 'status',
+                    };
+                    result.push(newTrial);
+                }
+
+                //let newfTrial = {found: 12, keywords: "keywords", conditions: "conditions", title: "title", nct: "nct", status: "status"}
+                return result;
+            },
+        },
+        []
+    );
+
+    private async getAllStudiesForKeyword(keyword: String): Promise<Study[]> {
+        const STEPSIZE = 100;
+        var all_studies: Study[] = [];
+        var result: ClinicalTrialsGovStudies = await searchStudiesForKeywordAsString(
+            keyword,
+            1,
+            1
+        ); //find amount of available studies.
+        var num_studies_found = result.FullStudiesResponse.NStudiesFound;
+        var current_max = STEPSIZE; //ClinicalTrials.gov API Allows to oly fetch 100 studies at a time
+        var current_min = 1;
+
+        if (num_studies_found <= 0) {
+            console.log('no studies found for keyword ' + keyword);
+            return all_studies;
+        }
+
+        //get first batch of avialable studies
+        result = await searchStudiesForKeywordAsString(
+            keyword,
+            current_min,
+            current_max
+        );
+
+        result.FullStudiesResponse.FullStudies.forEach(function(value) {
+            all_studies.push(value.Study);
+        });
+
+        //check if there are more studies to fetch
+        while (current_max < num_studies_found) {
+            current_min = current_max + 1;
+            current_max = current_max + STEPSIZE;
+
+            result = await searchStudiesForKeywordAsString(
+                keyword,
+                current_min,
+                current_max
+            );
+            result.FullStudiesResponse.FullStudies.forEach(function(value) {
+                all_studies.push(value.Study);
+            });
+        }
+
+        return all_studies;
+    }
 }
