@@ -148,50 +148,59 @@ class ClinicalTrialMatchTableOptions extends React.Component<
         return (
             <React.Fragment>
                 <div>
-                    <label>
-                        Additional Query:
+                    <div>
                         <input
                             type="text"
                             value={this.state.value}
                             onChange={this.handleTextChange}
+                            placeholder="Additional Query"
                         />
-                    </label>
-                    <label>
-                        Search Country
+                    </div>
+                    <br></br>
+                    <div>
                         <input
                             type="text"
                             value={this.state.value}
                             onChange={this.handleCountryChange}
+                            placeholder="Country"
                         />
-                    </label>
-                    {this.props.store.mutationHugoGeneSymbols.map(item => (
-                        <div>
-                            <label key={item}>
-                                <Checkbox
-                                    name={item}
-                                    checked={this.state.checkedItems.get(item)}
-                                    onChange={this.handleChange}
-                                />
-                                {item}
-                            </label>
-                        </div>
-                    ))}
-
-                    {this.recruiting_values.map(item => (
-                        <div>
-                            <label key={item}>
-                                <Checkbox
-                                    name={item.toString()}
-                                    checked={this.state.checkedRecruitingItems.get(
-                                        item
-                                    )}
-                                    onChange={this.handleRecChange}
-                                />
-                                {item}
-                            </label>
-                        </div>
-                    ))}
+                    </div>
+                    <br></br>
+                    <div>
+                        {this.props.store.mutationHugoGeneSymbols.map(item => (
+                            <div>
+                                <label key={item}>
+                                    <Checkbox
+                                        name={item}
+                                        checked={this.state.checkedItems.get(
+                                            item
+                                        )}
+                                        onChange={this.handleChange}
+                                    />
+                                    {item}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                    <br></br>
+                    <div>
+                        {this.recruiting_values.map(item => (
+                            <div>
+                                <label key={item}>
+                                    <Checkbox
+                                        name={item.toString()}
+                                        checked={this.state.checkedRecruitingItems.get(
+                                            item
+                                        )}
+                                        onChange={this.handleRecChange}
+                                    />
+                                    {item}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
                 </div>
+                <br></br>
                 <div>
                     <button onClick={this.setSearchParams.bind(this)}>
                         Search
