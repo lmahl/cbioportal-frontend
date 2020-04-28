@@ -222,6 +222,7 @@ export interface Location {
     LocationFacility: string;
     LocationCity: string;
     LocationState: string;
+    LocationStatus: string;
     LocationZip: string;
     LocationCountry: string;
 }

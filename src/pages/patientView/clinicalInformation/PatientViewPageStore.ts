@@ -119,6 +119,10 @@ import {
 import {
     Study,
     ClinicalTrialsGovStudies,
+    Location,
+    LocationList,
+    Intervention,
+    InterventionList,
 } from 'shared/api/ClinicalTrialsGovStudyStrucutre';
 import { IDetailedClinicalTrialMatch } from '../clinicalTrialMatch/ClinicalTrialMatchTable';
 import { searchStudiesForKeywordAsString } from 'shared/api/ClinicalTrialMatchAPI';
@@ -1618,6 +1622,30 @@ export class PatientViewPageStore {
             invoke: async () => {
                 var result: IDetailedClinicalTrialMatch[] = [];
                 for (const std of this.getStudiesFromClinicalTrialsGov.result) {
+                    var loc: string[] = [];
+                    var inv: string[] = ['inv'];
+
+                    var locationModule: Location[] = std.getStudy()
+                        .ProtocolSection.ContactsLocationsModule.LocationList
+                        .Location;
+                    //var interventionModule:Intervention[] = std.getStudy().ProtocolSection.ArmsInterventionsModule.InterventionList.Intervention;
+
+                    for (let i = 0; i < locationModule.length; i++) {
+                        let location: Location = locationModule[i];
+                        loc.push(
+                            location.LocationCity +
+                                ': ' +
+                                location.LocationFacility +
+                                ': ' +
+                                location.LocationStatus
+                        );
+                    }
+
+                    /*for(let i = 0; i < interventionModule.length; i++){
+                        let intervention:Intervention = interventionModule[i];
+                        inv.push(intervention.InterventionName);
+                    }*/
+
                     var newTrial = {
                         found: std.getNumberFound(),
                         keywords: std.getKeywords().toString(),
@@ -1630,6 +1658,8 @@ export class PatientViewPageStore {
                             .NCTId,
                         status: std.getStudy().ProtocolSection.StatusModule
                             .OverallStatus,
+                        locations: loc,
+                        interventions: inv,
                     };
                     result.push(newTrial);
                 }
