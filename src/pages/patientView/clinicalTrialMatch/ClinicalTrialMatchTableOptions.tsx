@@ -11,7 +11,6 @@ interface IClinicalTrialOptionsMatchProps {
 class ClinicalTrialMatchTableOptions extends React.Component<
     IClinicalTrialOptionsMatchProps
 > {
-    //query_field:ClinicalTrialMatchTextfield = new ClinicalTrialMatchTextfield("");
     recruiting_values: RecruitingStatus[] = [];
 
     constructor(props: IClinicalTrialOptionsMatchProps) {

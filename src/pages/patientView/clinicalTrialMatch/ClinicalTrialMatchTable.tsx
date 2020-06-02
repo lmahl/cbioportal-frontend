@@ -51,6 +51,7 @@ export class ClinicalTrialMatchTable extends React.Component<
     IClinicalTrialMatchProps,
     {}
 > {
+    private readonly ENTRIES_PER_PAGE = 10;
     private _columns = [
         {
             name: ColumnKey.STATUS,
@@ -132,6 +133,7 @@ export class ClinicalTrialMatchTable extends React.Component<
                     <ClinicalTrialMatchTableComponent
                         data={this.props.clinicalTrialMatches}
                         columns={this._columns}
+                        initialItemsPerPage={this.ENTRIES_PER_PAGE}
                     />
                 </div>
             </div>
