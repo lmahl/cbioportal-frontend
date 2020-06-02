@@ -37,13 +37,14 @@ export function getQuery(
         resultQuery += ')';
     } else {
         if (recrutingStatus && recrutingStatus.length > 0) {
-            resultQuery += ' AND (AREA[OverallStatus](';
+            resultQuery += ' AND (AREA[OverallStatus]COVERAGE[FullMatch](';
             resultQuery += recrutingStatus[0];
             resultQuery += ')';
 
             if (recrutingStatus.length > 1) {
                 for (let i = 1; i < recrutingStatus.length; i++) {
-                    resultQuery += ' OR (AREA[OverallStatus](';
+                    resultQuery +=
+                        ' OR (AREA[OverallStatus]COVERAGE[FullMatch](';
                     resultQuery += recrutingStatus[i];
                     resultQuery += '))';
                 }
