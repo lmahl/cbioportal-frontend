@@ -7,7 +7,7 @@ export function getQuery(
     var resultQuery: string = '';
 
     //TODO: Export list
-    resultQuery += 'AND (cancer OR leukemia OR neoplasm OR carcinoma OR tumor)';
+    //resultQuery += "AND (cancer OR leukemia OR neoplasm OR carcinoma OR tumor)"
 
     if (locations && locations.length > 0) {
         resultQuery += ' AND SEARCH[Location](AREA[LocationCountry](';

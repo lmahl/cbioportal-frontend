@@ -34,7 +34,7 @@ interface IClinicalTrialMatchProps {
 export interface IDetailedClinicalTrialMatch {
     found: number;
     keywords: String;
-    conditions: String;
+    conditions: String[];
     title: String;
     nct: String;
     status: String;
@@ -85,7 +85,9 @@ export class ClinicalTrialMatchTable extends React.Component<
         {
             name: ColumnKey.CONDITIONS,
             render: (trial: IDetailedClinicalTrialMatch) => (
-                <div>{trial.conditions}</div>
+                <div>
+                    <ul>{this.asListElement(trial.conditions)}</ul>
+                </div>
             ),
             width: 300,
         },
@@ -93,9 +95,7 @@ export class ClinicalTrialMatchTable extends React.Component<
             name: ColumnKey.INTERVENTIONS,
             render: (trial: IDetailedClinicalTrialMatch) => (
                 <div>
-                    <ul>
-                        <li>{trial.interventions}</li>
-                    </ul>
+                    <ul>{this.asListElement(trial.interventions)}</ul>
                 </div>
             ),
             width: 300,
@@ -104,7 +104,7 @@ export class ClinicalTrialMatchTable extends React.Component<
             name: ColumnKey.LOCATIONS,
             render: (trial: IDetailedClinicalTrialMatch) => (
                 <div>
-                    <ul>{trial.locations}</ul>
+                    <ul>{this.asListElement(trial.locations)}</ul>
                 </div>
             ),
             width: 300,
@@ -116,6 +116,10 @@ export class ClinicalTrialMatchTable extends React.Component<
 
     constructor(props: IClinicalTrialMatchProps) {
         super(props);
+    }
+
+    asListElement(str: String[]) {
+        return str.map(i => <li>{i}</li>);
     }
 
     render() {

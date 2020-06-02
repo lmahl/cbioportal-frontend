@@ -1673,9 +1673,8 @@ export class PatientViewPageStore {
                     var newTrial = {
                         found: std.getNumberFound(),
                         keywords: std.getKeywords().toString(),
-                        conditions: std
-                            .getStudy()
-                            .ProtocolSection.ConditionsModule.ConditionList.Condition.toString(),
+                        conditions: std.getStudy().ProtocolSection
+                            .ConditionsModule.ConditionList.Condition,
                         title: std.getStudy().ProtocolSection
                             .IdentificationModule.OfficialTitle,
                         nct: std.getStudy().ProtocolSection.IdentificationModule
@@ -1745,25 +1744,6 @@ export class PatientViewPageStore {
 
         return all_studies;
     }
-
-    /*public setAdditionalQuery(additional:string){
-        console.log("called");
-        this.additionalClinicalTrialsQueries = [additional];
-    }
-
-    public setCountry(country:string){
-        console.log("called setcountry");
-        this.clinicalTrialsCountires = [country];
-    }
-
-    public setStatus(){
-        console.log("called setstatus");
-        this.clinicalTrialsRecruitingStatus = [RecruitingStatus.Recruiting];
-    }
-
-    public setSymbolsToSearch(symbols: string[]){
-        this.symbolsToSearch = symbols;
-    }*/
 
     public setClinicalTrialSearchParams(
         additionalQuery: string,
