@@ -1647,14 +1647,6 @@ export class PatientViewPageStore {
 
                     for (let i = 0; i < locationModule.length; i++) {
                         let location: Location = locationModule[i];
-                        console.log(
-                            location.LocationCity +
-                                ': ' +
-                                location.LocationFacility +
-                                ': ' +
-                                location.LocationStatus
-                        );
-
                         loc.push(
                             location.LocationCity +
                                 ': ' +
@@ -1666,7 +1658,6 @@ export class PatientViewPageStore {
 
                     for (let i = 0; i < interventionModule.length; i++) {
                         let intervention: Intervention = interventionModule[i];
-                        console.log(intervention.InterventionName);
                         inv.push(intervention.InterventionName);
                     }
 

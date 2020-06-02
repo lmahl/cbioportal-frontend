@@ -3,6 +3,7 @@ import { action, computed, observable } from 'mobx';
 import { PatientViewPageStore } from '../clinicalInformation/PatientViewPageStore';
 import { observer } from 'mobx-react';
 import { Mutation } from '../../../shared/api/generated/CBioPortalAPI';
+import { Collapse } from 'react-collapse';
 import {
     searchStudiesForKeyword,
     searchStudiesForKeywordAsString,
@@ -46,6 +47,99 @@ class ClinicalTrialMatchTableComponent extends LazyMobXTable<
     IDetailedClinicalTrialMatch
 > {}
 
+class CollapseList extends React.PureComponent {
+    NUM_LIST_ELEMENTS = 3;
+
+    getDiplayStyle(str: String[]) {
+        if (str.length < this.NUM_LIST_ELEMENTS) {
+            return (
+                <div>
+                    <ul>{this.asFirstListElement(str)}</ul>
+                </div>
+            );
+        } else {
+            return (
+                <div>
+                    <ul>{this.asFirstListElement(str)}</ul>
+                    <Collapse isOpened={this.state.isOpened}>
+                        <ul>{this.asHiddenListElement(str)}</ul>
+                    </Collapse>
+                    <div className="config">
+                        <label>
+                            Show More:
+                            <input
+                                className="input"
+                                type="checkbox"
+                                checked={this.state.isOpened}
+                                onChange={({ target: { checked } }) =>
+                                    this.setState({ isOpened: checked })
+                                }
+                            />
+                        </label>
+                    </div>
+                </div>
+            );
+        }
+    }
+
+    asFirstListElement(str: String[]) {
+        var res: String[] = [];
+        if (str.length < this.NUM_LIST_ELEMENTS) {
+            for (var i = 0; i < str.length; i++) {
+                res.push(str[i]);
+            }
+        } else {
+            for (var i = 0; i < this.NUM_LIST_ELEMENTS; i++) {
+                res.push(str[i]);
+            }
+        }
+        return res.map(i => <li>{i}</li>);
+    }
+
+    asHiddenListElement(str: String[]) {
+        var res: String[] = [];
+        if (str.length >= this.NUM_LIST_ELEMENTS) {
+            for (var i = this.NUM_LIST_ELEMENTS; i < str.length; i++) {
+                res.push(str[i]);
+            }
+            return res.map(i => <li>{i}</li>);
+        } else {
+            return <div></div>;
+        }
+    }
+
+    constructor(props) {
+        super(props);
+        this.state = { isOpened: false };
+    }
+
+    render() {
+        const { isOpened } = this.state;
+        const height = 100;
+
+        return <div>{this.getDiplayStyle(this.props.elements)}</div>;
+
+        /*return (
+        <div>
+            {this.props.permanenttext}
+          <Collapse isOpened={isOpened}>
+            {this.props.collapsetext}
+          </Collapse>
+          <div className="config">
+            <label>
+              Read More:
+              <input
+                className="input"
+                type="checkbox"
+                checked={isOpened}
+                onChange={({target: {checked}}) => this.setState({isOpened: checked})} />
+            </label>
+          </div>
+        </div>
+      );*/
+    }
+}
+
 @observer
 export class ClinicalTrialMatchTable extends React.Component<
     IClinicalTrialMatchProps,
@@ -87,7 +181,7 @@ export class ClinicalTrialMatchTable extends React.Component<
             name: ColumnKey.CONDITIONS,
             render: (trial: IDetailedClinicalTrialMatch) => (
                 <div>
-                    <ul>{this.asListElement(trial.conditions)}</ul>
+                    <CollapseList elements={trial.conditions}></CollapseList>
                 </div>
             ),
             width: 300,
@@ -96,7 +190,7 @@ export class ClinicalTrialMatchTable extends React.Component<
             name: ColumnKey.INTERVENTIONS,
             render: (trial: IDetailedClinicalTrialMatch) => (
                 <div>
-                    <ul>{this.asListElement(trial.interventions)}</ul>
+                    <CollapseList elements={trial.interventions}></CollapseList>
                 </div>
             ),
             width: 300,
@@ -105,7 +199,7 @@ export class ClinicalTrialMatchTable extends React.Component<
             name: ColumnKey.LOCATIONS,
             render: (trial: IDetailedClinicalTrialMatch) => (
                 <div>
-                    <ul>{this.asListElement(trial.locations)}</ul>
+                    <CollapseList elements={trial.locations}></CollapseList>
                 </div>
             ),
             width: 300,
@@ -117,10 +211,6 @@ export class ClinicalTrialMatchTable extends React.Component<
 
     constructor(props: IClinicalTrialMatchProps) {
         super(props);
-    }
-
-    asListElement(str: String[]) {
-        return str.map(i => <li>{i}</li>);
     }
 
     render() {
