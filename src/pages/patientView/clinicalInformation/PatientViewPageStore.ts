@@ -1570,7 +1570,7 @@ export class PatientViewPageStore {
                     clinicalTrialQuery.additionalClinicalTrialsQueries.length ==
                         0
                 ) {
-                    gene_symbols = all_gene_symbols;
+                    gene_symbols = [];
                 } else {
                     gene_symbols = search_symbols;
                 }
@@ -1623,15 +1623,38 @@ export class PatientViewPageStore {
                 var result: IDetailedClinicalTrialMatch[] = [];
                 for (const std of this.getStudiesFromClinicalTrialsGov.result) {
                     var loc: string[] = [];
-                    var inv: string[] = ['inv'];
+                    var inv: string[] = [];
 
-                    var locationModule: Location[] = std.getStudy()
-                        .ProtocolSection.ContactsLocationsModule.LocationList
-                        .Location;
-                    //var interventionModule:Intervention[] = std.getStudy().ProtocolSection.ArmsInterventionsModule.InterventionList.Intervention;
+                    var locationModule: Location[] = [];
+                    var interventionModule: Intervention[] = [];
+
+                    try {
+                        locationModule = std.getStudy().ProtocolSection
+                            .ContactsLocationsModule.LocationList.Location;
+                    } catch (e) {
+                        //no location module in study
+                        locationModule = [];
+                    }
+
+                    try {
+                        interventionModule = std.getStudy().ProtocolSection
+                            .ArmsInterventionsModule.InterventionList
+                            .Intervention;
+                    } catch (e) {
+                        //no intervention module in study
+                        interventionModule = [];
+                    }
 
                     for (let i = 0; i < locationModule.length; i++) {
                         let location: Location = locationModule[i];
+                        console.log(
+                            location.LocationCity +
+                                ': ' +
+                                location.LocationFacility +
+                                ': ' +
+                                location.LocationStatus
+                        );
+
                         loc.push(
                             location.LocationCity +
                                 ': ' +
@@ -1641,10 +1664,11 @@ export class PatientViewPageStore {
                         );
                     }
 
-                    /*for(let i = 0; i < interventionModule.length; i++){
-                        let intervention:Intervention = interventionModule[i];
+                    for (let i = 0; i < interventionModule.length; i++) {
+                        let intervention: Intervention = interventionModule[i];
+                        console.log(intervention.InterventionName);
                         inv.push(intervention.InterventionName);
-                    }*/
+                    }
 
                     var newTrial = {
                         found: std.getNumberFound(),

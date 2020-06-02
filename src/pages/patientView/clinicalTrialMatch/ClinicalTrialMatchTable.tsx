@@ -93,7 +93,9 @@ export class ClinicalTrialMatchTable extends React.Component<
             name: ColumnKey.INTERVENTIONS,
             render: (trial: IDetailedClinicalTrialMatch) => (
                 <div>
-                    <ul>{trial.interventions}</ul>
+                    <ul>
+                        <li>{trial.interventions}</li>
+                    </ul>
                 </div>
             ),
             width: 300,
