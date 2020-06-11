@@ -2,7 +2,7 @@ import * as React from 'react';
 import { action, computed, observable } from 'mobx';
 import { PatientViewPageStore } from '../clinicalInformation/PatientViewPageStore';
 import { observer } from 'mobx-react';
-import { Mutation } from '../../../shared/api/generated/CBioPortalAPI';
+
 import { Collapse } from 'react-collapse';
 import {
     searchStudiesForKeyword,
@@ -32,10 +32,18 @@ interface IClinicalTrialMatchProps {
     clinicalTrialMatches: IDetailedClinicalTrialMatch[];
 }
 
+interface ICollapseListState {
+    isOpened: boolean;
+}
+
+interface ICollapseListProps {
+    elements: string[];
+}
+
 export interface IDetailedClinicalTrialMatch {
     found: number;
     keywords: String;
-    conditions: String[];
+    conditions: string[];
     title: String;
     nct: String;
     status: String;
@@ -47,7 +55,10 @@ class ClinicalTrialMatchTableComponent extends LazyMobXTable<
     IDetailedClinicalTrialMatch
 > {}
 
-class CollapseList extends React.PureComponent {
+class CollapseList extends React.PureComponent<
+    ICollapseListProps,
+    ICollapseListState
+> {
     NUM_LIST_ELEMENTS = 3;
 
     getDiplayStyle(str: String[]) {
@@ -108,7 +119,7 @@ class CollapseList extends React.PureComponent {
         }
     }
 
-    constructor(props) {
+    constructor(props: ICollapseListProps) {
         super(props);
         this.state = { isOpened: false };
     }

@@ -1,13 +1,17 @@
 import React from 'react';
 
-export class ClinicalTrialMatchTextfield extends React.Component {
-    constructor(props) {
+interface IState {
+    value?: string;
+}
+
+export class ClinicalTrialMatchTextfield extends React.Component<{}, IState> {
+    constructor(props: React.Component) {
         super(props);
         this.state = { value: 'foobar' };
         this.handleChange = this.handleChange.bind(this);
     }
 
-    handleChange(event) {
+    handleChange(event: React.ChangeEvent<HTMLInputElement>) {
         this.setState({ value: event.target.value });
     }
 
