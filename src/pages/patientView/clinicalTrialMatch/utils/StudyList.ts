@@ -4,11 +4,13 @@ export class StudyListEntry {
     private numberFound: number;
     private keywordsFound: String[];
     private study: Study;
+    private score: number;
 
     constructor(study: Study, keyword: String) {
         this.numberFound = 1;
         this.keywordsFound = [keyword];
         this.study = study;
+        this.score = 0;
     }
 
     addFound(keyword: String) {
@@ -26,6 +28,24 @@ export class StudyListEntry {
 
     getStudy(): Study {
         return this.study;
+    }
+
+    getScore(): number {
+        return this.score;
+    }
+
+    calculateScore(isConditionMatching: boolean): number {
+        var res: number = 0;
+
+        if (isConditionMatching) {
+            res += 1000;
+        }
+
+        res += this.getNumberFound() * 1;
+
+        this.score = res;
+
+        return res;
     }
 }
 
@@ -46,5 +66,21 @@ export class StudyList {
 
     getStudyListEntires(): Map<String, StudyListEntry> {
         return this.list;
+    }
+
+    calculateScores(nct_ids: string[]) {
+        this.list.forEach((value: StudyListEntry, key: String) => {
+            var nct_id = value.getStudy().ProtocolSection.IdentificationModule
+                .NCTId;
+            var isConditionMatching: boolean = false;
+
+            console.log('calculating score');
+
+            if (nct_ids.includes(nct_id)) {
+                isConditionMatching = true;
+                console.log('Match found');
+            }
+            value.calculateScore(isConditionMatching);
+        });
     }
 }

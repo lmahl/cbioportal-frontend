@@ -125,7 +125,13 @@ import {
     InterventionList,
 } from 'shared/api/ClinicalTrialsGovStudyStrucutre';
 import { IDetailedClinicalTrialMatch } from '../clinicalTrialMatch/ClinicalTrialMatchTable';
-import { searchStudiesForKeywordAsString } from 'shared/api/ClinicalTrialMatchAPI';
+import {
+    searchStudiesForKeywordAsString,
+    getStudiesByCondtionsFromOncoKB,
+    IOncoKBStudyDictionary,
+    getAllStudyNctIdsByOncoTreeCode,
+    getAllStudyNctIdsByOncoTreeCodes,
+} from 'shared/api/ClinicalTrialMatchAPI';
 import { RecruitingStatus } from 'shared/enums/ClinicalTrialsGovRecruitingStatus';
 
 type PageMode = 'patient' | 'sample';
@@ -1552,9 +1558,25 @@ export class PatientViewPageStore {
         []
     );
 
+    readonly getStudiesFromOncoKBSortedByCondition = remoteData<
+        IOncoKBStudyDictionary
+    >({
+        await: () => [],
+        invoke: async () => {
+            var res: IOncoKBStudyDictionary = await getStudiesByCondtionsFromOncoKB();
+            console.log(
+                'reached this point ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||'
+            );
+            return res;
+        },
+    });
+
     readonly getStudiesFromClinicalTrialsGov = remoteData<StudyListEntry[]>(
         {
-            await: () => [],
+            await: () => [
+                this.getStudiesFromOncoKBSortedByCondition,
+                this.patientViewData,
+            ],
             invoke: async () => {
                 var study_list = new StudyList();
                 var sortedList;
@@ -1564,6 +1586,9 @@ export class PatientViewPageStore {
                 var status = clinicalTrialQuery.clinicalTrialsRecruitingStatus;
                 var search_symbols = clinicalTrialQuery.symbolsToSearch;
                 var gene_symbols: string[] = [];
+                var study_dictionary: IOncoKBStudyDictionary = await this
+                    .getStudiesFromOncoKBSortedByCondition.result;
+                var trials_for_condtion: string[] = [];
 
                 if (
                     search_symbols.length == 0 &&
@@ -1590,6 +1615,29 @@ export class PatientViewPageStore {
                     }
                 }
 
+                var patientData = await this.patientViewData.result;
+                var samples = patientData.samples;
+                var oncotree_codes_in_samples: string[] = [];
+
+                for (var i = 0; i < samples.length; i++) {
+                    oncotree_codes_in_samples.push(
+                        samples[i].clinicalData[6].value
+                    );
+                }
+
+                console.log(
+                    'found tumor types: ' + oncotree_codes_in_samples.toString()
+                );
+
+                var study_dictionary: IOncoKBStudyDictionary = await this
+                    .getStudiesFromOncoKBSortedByCondition.result;
+                trials_for_condtion = getAllStudyNctIdsByOncoTreeCodes(
+                    study_dictionary,
+                    oncotree_codes_in_samples
+                );
+
+                study_list.calculateScores(trials_for_condtion);
+
                 console.log(study_list);
 
                 var tmp: Map<
@@ -1598,7 +1646,7 @@ export class PatientViewPageStore {
                 > = study_list.getStudyListEntires();
                 var arr: StudyListEntry[] = Array.from(tmp.values());
                 var sorted_arr: StudyListEntry[] = arr.sort(
-                    (a, b) => b.getNumberFound() - a.getNumberFound()
+                    (a, b) => b.getScore() - a.getScore()
                 );
 
                 console.log(sorted_arr);
@@ -1609,6 +1657,20 @@ export class PatientViewPageStore {
                     res += '","';
                 }
                 console.log(res);
+
+                ///////////////////////////////////////////////////////////////////////
+                var rrrr = this.patientViewData.result;
+                var rr: IOncoKBStudyDictionary = await this
+                    .getStudiesFromOncoKBSortedByCondition.result;
+                var rrr = await this.allSamplesForPatient.result;
+                var nmb: String = rr['AASTR'].trials[0].nctId;
+
+                console.log(getAllStudyNctIdsByOncoTreeCode(rr, 'AASTR'));
+
+                console.log(rr);
+                console.log(nmb);
+                console.log('||||||||||||||||||||||||||');
+                console.log(rrrr.samples[0].clinicalData[6].value);
 
                 return sorted_arr;
             },
@@ -1674,6 +1736,8 @@ export class PatientViewPageStore {
                             .OverallStatus,
                         locations: loc,
                         interventions: inv,
+                        condition_matching: false,
+                        score: 0,
                     };
                     result.push(newTrial);
                 }
@@ -1684,7 +1748,7 @@ export class PatientViewPageStore {
         []
     );
 
-    private async getAllStudiesForKeyword(keyword: String): Promise<Study[]> {
+    private async getAllStudiesForKeyword(keyword: string): Promise<Study[]> {
         const STEPSIZE = 100;
         var all_studies: Study[] = [];
         var result: ClinicalTrialsGovStudies = await searchStudiesForKeywordAsString(

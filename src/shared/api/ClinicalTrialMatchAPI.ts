@@ -10,7 +10,7 @@ import {
 import { RecruitingStatus } from 'shared/enums/ClinicalTrialsGovRecruitingStatus';
 
 export async function searchStudiesForKeyword(
-    keyword: String,
+    keyword: string,
     min_rnk: number,
     max_rnk: number,
     locations: string[],
@@ -33,7 +33,7 @@ export async function searchStudiesForKeyword(
 }
 
 export async function searchStudiesForKeywordAsString(
-    keyword: String,
+    keyword: string,
     min_rnk: number,
     max_rnk: number,
     locations: string[],
@@ -54,4 +54,85 @@ export async function searchStudiesForKeywordAsString(
         var result: ClinicalTrialsGovStudies = JSON.parse(res.text);
         return result;
     });
+}
+
+export async function getStudiesByCondtionsFromOncoKBasString(): Promise<
+    String
+> {
+    const oncokb_studies_url = 'https://test.oncokb.org/trials';
+    return request.get(oncokb_studies_url).then(res => {
+        return res.text;
+    });
+}
+
+export async function getStudiesByCondtionsFromOncoKB(): Promise<
+    IOncoKBStudyDictionary
+> {
+    const oncokb_studies_url = 'https://test.oncokb.org/trials';
+    return request.get(oncokb_studies_url).then(res => {
+        var result: IOncoKBStudyDictionary = JSON.parse(res.text);
+        return result;
+    });
+}
+
+//Only includes fields relevant for ClinicalTrials.Gov search
+interface IOncoKBStudy {
+    briefTitle: string;
+    currentTrialStatus: string;
+    nctId: string;
+}
+
+interface IOncoKBStudyListByOncoTreeCode {
+    nciCode: string;
+    nciMainType: string;
+    trials: IOncoKBStudy[];
+}
+
+export interface IOncoKBStudyDictionary {
+    [index: string]: IOncoKBStudyListByOncoTreeCode;
+}
+
+export function getAllStudyNctIdsByOncoTreeCode(
+    studyDictionary: IOncoKBStudyDictionary,
+    oncoTreeCode: string
+): string[] {
+    var result: string[] = [];
+    var studyList: IOncoKBStudyListByOncoTreeCode =
+        studyDictionary[oncoTreeCode];
+    var trials: IOncoKBStudy[];
+
+    if (!studyList) {
+        return result;
+    }
+
+    trials = studyDictionary[oncoTreeCode].trials;
+
+    for (var std of trials) {
+        result.push(std.nctId);
+    }
+
+    return result;
+}
+
+export function getAllStudyNctIdsByOncoTreeCodes(
+    studyDictionary: IOncoKBStudyDictionary,
+    oncoTreeCodes: string[]
+): string[] {
+    var result: string[] = [];
+
+    for (var oc = 0; oc < oncoTreeCodes.length; oc++) {
+        var oncoTreeCode: string = oncoTreeCodes[oc];
+        var studyList: IOncoKBStudyListByOncoTreeCode =
+            studyDictionary[oncoTreeCode];
+        var trials: IOncoKBStudy[];
+
+        if (studyList) {
+            trials = studyDictionary[oncoTreeCode].trials;
+            for (var std of trials) {
+                result.push(std.nctId);
+            }
+        }
+    }
+
+    return result;
 }

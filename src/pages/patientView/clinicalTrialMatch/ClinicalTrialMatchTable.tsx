@@ -49,6 +49,8 @@ export interface IDetailedClinicalTrialMatch {
     status: String;
     locations: string[];
     interventions: string[];
+    condition_matching: boolean;
+    score: number;
 }
 
 class ClinicalTrialMatchTableComponent extends LazyMobXTable<
