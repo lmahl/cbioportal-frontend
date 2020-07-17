@@ -25,6 +25,8 @@ enum ColumnKey {
     STATUS = 'Status',
     LOCATIONS = 'Locations',
     INTERVENTIONS = 'Interventions',
+    SCORE = 'Score',
+    ELIGIBILITY = 'Eligibility Criteria',
 }
 
 interface IClinicalTrialMatchProps {
@@ -40,6 +42,10 @@ interface ICollapseListProps {
     elements: string[];
 }
 
+interface ICompleteCollapseListProps {
+    text: string;
+}
+
 export interface IDetailedClinicalTrialMatch {
     found: number;
     keywords: String;
@@ -51,6 +57,7 @@ export interface IDetailedClinicalTrialMatch {
     interventions: string[];
     condition_matching: boolean;
     score: number;
+    eligibility: string;
 }
 
 class ClinicalTrialMatchTableComponent extends LazyMobXTable<
@@ -131,25 +138,46 @@ class CollapseList extends React.PureComponent<
         const height = 100;
 
         return <div>{this.getDiplayStyle(this.props.elements)}</div>;
+    }
+}
 
-        /*return (
-        <div>
-            {this.props.permanenttext}
-          <Collapse isOpened={isOpened}>
-            {this.props.collapsetext}
-          </Collapse>
-          <div className="config">
-            <label>
-              Read More:
-              <input
-                className="input"
-                type="checkbox"
-                checked={isOpened}
-                onChange={({target: {checked}}) => this.setState({isOpened: checked})} />
-            </label>
-          </div>
-        </div>
-      );*/
+class CompleteCollapseList extends React.PureComponent<
+    ICompleteCollapseListProps,
+    ICollapseListState
+> {
+    getDiplayStyle(str: string) {
+        return (
+            <div>
+                <Collapse isOpened={this.state.isOpened}>
+                    <div>{str}</div>
+                </Collapse>
+                <div className="config">
+                    <label>
+                        Show:
+                        <input
+                            className="input"
+                            type="checkbox"
+                            checked={this.state.isOpened}
+                            onChange={({ target: { checked } }) =>
+                                this.setState({ isOpened: checked })
+                            }
+                        />
+                    </label>
+                </div>
+            </div>
+        );
+    }
+
+    constructor(props: ICompleteCollapseListProps) {
+        super(props);
+        this.state = { isOpened: false };
+    }
+
+    render() {
+        const { isOpened } = this.state;
+        const height = 100;
+
+        return <div>{this.getDiplayStyle(this.props.text)}</div>;
     }
 }
 
@@ -160,6 +188,13 @@ export class ClinicalTrialMatchTable extends React.Component<
 > {
     private readonly ENTRIES_PER_PAGE = 10;
     private _columns = [
+        {
+            name: ColumnKey.SCORE,
+            render: (trial: IDetailedClinicalTrialMatch) => (
+                <div>{trial.score}</div>
+            ),
+            width: 100,
+        },
         {
             name: ColumnKey.STATUS,
             render: (trial: IDetailedClinicalTrialMatch) => (
@@ -204,6 +239,17 @@ export class ClinicalTrialMatchTable extends React.Component<
             render: (trial: IDetailedClinicalTrialMatch) => (
                 <div>
                     <CollapseList elements={trial.interventions}></CollapseList>
+                </div>
+            ),
+            width: 300,
+        },
+        {
+            name: ColumnKey.ELIGIBILITY,
+            render: (trial: IDetailedClinicalTrialMatch) => (
+                <div>
+                    <CompleteCollapseList
+                        text={trial.eligibility}
+                    ></CompleteCollapseList>
                 </div>
             ),
             width: 300,

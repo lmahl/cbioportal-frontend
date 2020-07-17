@@ -206,6 +206,7 @@ export interface EligibilityModule {
     Gender: string;
     MinimumAge: string;
     StdAgeList: StdAgeList;
+    MaximumAge: string;
 }
 
 export interface OverallOfficial {

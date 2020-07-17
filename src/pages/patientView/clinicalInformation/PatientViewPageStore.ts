@@ -123,6 +123,7 @@ import {
     LocationList,
     Intervention,
     InterventionList,
+    EligibilityModule,
 } from 'shared/api/ClinicalTrialsGovStudyStrucutre';
 import { IDetailedClinicalTrialMatch } from '../clinicalTrialMatch/ClinicalTrialMatchTable';
 import {
@@ -227,18 +228,15 @@ function transformClinicalInformationToStoreShape(
 }
 
 class ClinicalTrialsSearchParams {
-    additionalClinicalTrialsQueries: string[] = [];
     clinicalTrialsCountires: string[] = [];
     clinicalTrialsRecruitingStatus: RecruitingStatus[] = [];
     symbolsToSearch: string[] = [];
 
     constructor(
-        additionalClinicalTrialsQueries: string[],
         clinicalTrialsCountires: string[],
         clinicalTrialsRecruitingStatus: RecruitingStatus[],
         symbolsToSearch: string[] = []
     ) {
-        this.additionalClinicalTrialsQueries = additionalClinicalTrialsQueries;
         this.clinicalTrialsRecruitingStatus = clinicalTrialsRecruitingStatus;
         this.clinicalTrialsCountires = clinicalTrialsCountires;
         this.symbolsToSearch = symbolsToSearch;
@@ -255,7 +253,6 @@ export class PatientViewPageStore {
 
     @observable
     private clinicalTrialSerchParams: ClinicalTrialsSearchParams = new ClinicalTrialsSearchParams(
-        [],
         [],
         [],
         []
@@ -1579,29 +1576,17 @@ export class PatientViewPageStore {
                 var sortedList;
                 var all_gene_symbols: string[] = this.mutationHugoGeneSymbols;
                 var clinicalTrialQuery = this.clinicalTrialSerchParams;
-                var locations = clinicalTrialQuery.clinicalTrialsCountires;
-                var status = clinicalTrialQuery.clinicalTrialsRecruitingStatus;
                 var search_symbols = clinicalTrialQuery.symbolsToSearch;
                 var gene_symbols: string[] = [];
                 var study_dictionary: IOncoKBStudyDictionary = await this
                     .getStudiesFromOncoKBSortedByCondition.result;
                 var trials_for_condtion: string[] = [];
 
-                if (
-                    search_symbols.length == 0 &&
-                    clinicalTrialQuery.additionalClinicalTrialsQueries.length ==
-                        0
-                ) {
+                if (search_symbols.length == 0) {
                     gene_symbols = [];
                 } else {
                     gene_symbols = search_symbols;
                 }
-
-                clinicalTrialQuery.additionalClinicalTrialsQueries.forEach(
-                    function(value: string) {
-                        gene_symbols.push(value);
-                    }
-                );
 
                 for (const symbol of gene_symbols) {
                     var result: Study[] = await this.getAllStudiesForKeyword(
@@ -1668,6 +1653,11 @@ export class PatientViewPageStore {
 
                     var locationModule: Location[] = [];
                     var interventionModule: Intervention[] = [];
+                    var eligibilityCriteria: string = '';
+                    var sex: string = '';
+                    var minimumAge: String;
+                    var maximumAge: String;
+                    var minimumAge: String;
 
                     try {
                         locationModule = std.getStudy().ProtocolSection
@@ -1684,6 +1674,34 @@ export class PatientViewPageStore {
                     } catch (e) {
                         //no intervention module in study
                         interventionModule = [];
+                    }
+
+                    try {
+                        eligibilityCriteria = std.getStudy().ProtocolSection
+                            .EligibilityModule.EligibilityCriteria;
+                    } catch (e) {
+                        eligibilityCriteria = '';
+                    }
+
+                    try {
+                        minimumAge = std.getStudy().ProtocolSection
+                            .EligibilityModule.MinimumAge;
+                    } catch (e) {
+                        minimumAge = '';
+                    }
+
+                    try {
+                        minimumAge = std.getStudy().ProtocolSection
+                            .EligibilityModule.MaximumAge;
+                    } catch (e) {
+                        maximumAge = '';
+                    }
+
+                    try {
+                        sex = std.getStudy().ProtocolSection.EligibilityModule
+                            .Gender;
+                    } catch (e) {
+                        sex = '';
                     }
 
                     for (let i = 0; i < locationModule.length; i++) {
@@ -1716,7 +1734,8 @@ export class PatientViewPageStore {
                         locations: loc,
                         interventions: inv,
                         condition_matching: false,
-                        score: 0,
+                        score: std.getScore(),
+                        eligibility: eligibilityCriteria,
                     };
                     result.push(newTrial);
                 }
@@ -1780,28 +1799,19 @@ export class PatientViewPageStore {
     }
 
     public setClinicalTrialSearchParams(
-        additionalQuery: string,
-        country: string,
+        countries: string[],
         status: RecruitingStatus[],
         symbols: string[]
     ) {
-        var queries: string[] = [];
         var cntr: string[] = [];
 
-        if (additionalQuery == '') {
-            queries = [];
-        } else {
-            queries = [additionalQuery];
-        }
-
-        if (country == '') {
+        if (countries.length == 0) {
             cntr = [];
         } else {
-            cntr = [country];
+            cntr = countries;
         }
 
         this.clinicalTrialSerchParams = new ClinicalTrialsSearchParams(
-            queries,
             cntr,
             status,
             symbols
