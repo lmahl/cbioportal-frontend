@@ -288,8 +288,8 @@ class ClinicalTrialMatchTableOptions extends React.Component<
         ];
 
         // this.handleChange = this.handleChange.bind(this);
-        this.handleTextChange = this.handleTextChange.bind(this);
-        this.handleCountryChange = this.handleCountryChange.bind(this);
+        // this.handleTextChange = this.handleTextChange.bind(this);
+        // this.handleCountryChange = this.handleCountryChange.bind(this);
         // this.handleRecChange = this.handleRecChange.bind(this);
     }
 
@@ -301,24 +301,6 @@ class ClinicalTrialMatchTableOptions extends React.Component<
         }
 
         return RecruitingStatus.Invalid;
-    }
-
-    handleTextChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const newValue = e.target.value;
-        this.setState(prevState => ({
-            mutationSymbolItems: prevState.mutationSymbolItems,
-            recruitingItems: prevState.recruitingItems,
-        }));
-        console.log(this.state);
-    }
-
-    handleCountryChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const newValue = e.target.value;
-        this.setState(prevState => ({
-            mutationSymbolItems: prevState.mutationSymbolItems,
-            recruitingItems: prevState.recruitingItems,
-        }));
-        console.log(this.state);
     }
 
     setSearchParams() {
