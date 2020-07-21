@@ -11,6 +11,7 @@ import { RecruitingStatus } from 'shared/enums/ClinicalTrialsGovRecruitingStatus
 
 export async function searchStudiesForKeyword(
     keyword: string,
+    nec_search_symbols: string[],
     min_rnk: number,
     max_rnk: number,
     locations: string[],
@@ -19,7 +20,7 @@ export async function searchStudiesForKeyword(
     const url_raw =
         'https://ClinicalTrials.gov/api/query/full_studies?expr=' +
         keyword +
-        getQuery(locations, status) +
+        getQuery(locations, status, nec_search_symbols) +
         '&min_rnk=' +
         min_rnk +
         '&max_rnk=' +
@@ -34,6 +35,7 @@ export async function searchStudiesForKeyword(
 
 export async function searchStudiesForKeywordAsString(
     keyword: string,
+    nec_search_symbols: string[],
     min_rnk: number,
     max_rnk: number,
     locations: string[],
@@ -42,7 +44,7 @@ export async function searchStudiesForKeywordAsString(
     const url_raw =
         'https://ClinicalTrials.gov/api/query/full_studies?expr=' +
         keyword +
-        getQuery(locations, status) +
+        getQuery(locations, status, nec_search_symbols) +
         '&min_rnk=' +
         min_rnk +
         '&max_rnk=' +

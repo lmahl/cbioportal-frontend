@@ -2,12 +2,18 @@ import { RecruitingStatus } from '../enums/ClinicalTrialsGovRecruitingStatus';
 
 export function getQuery(
     locations: string[],
-    recrutingStatus: RecruitingStatus[]
+    recrutingStatus: RecruitingStatus[],
+    nec_search_symbols: string[]
 ) {
     var resultQuery: string = '';
 
     //TODO: Export list
     //resultQuery += "AND (cancer OR leukemia OR neoplasm OR carcinoma OR tumor)"
+
+    for (let i = 0; i < nec_search_symbols.length; i++) {
+        resultQuery += ' AND ';
+        resultQuery += nec_search_symbols[i];
+    }
 
     if (locations && locations.length > 0) {
         resultQuery += ' AND SEARCH[Location](AREA[LocationCountry](';

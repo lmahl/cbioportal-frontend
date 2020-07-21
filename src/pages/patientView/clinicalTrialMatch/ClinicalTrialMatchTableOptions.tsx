@@ -326,12 +326,15 @@ class ClinicalTrialMatchTableOptions extends React.Component<
             countries_to_search,
             recruiting_stati,
             symbols,
+            necSymbols,
             this.state.gender
         );
 
         console.log('smybols');
         console.log(symbols);
         console.log(recruiting_stati);
+        console.log('necSymbols');
+        console.log(necSymbols);
 
         //this.props.store.setSymbolsToSearch(symbols);
     }
