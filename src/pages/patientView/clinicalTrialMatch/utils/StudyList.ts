@@ -1,16 +1,18 @@
 import { Study } from 'shared/api/ClinicalTrialsGovStudyStrucutre';
 import { ageAsNumber, getGenderString } from './AgeSexConverter';
+import { ClinicalTrialsPNorm } from './PNorm/ClinicalTrialsPNorm';
 
 export class StudyListEntry {
     private numberFound: number;
-    private keywordsFound: String[];
+    private keywordsFound: string[];
     private study: Study;
     private score: number;
     private minimumAge: number;
     private maximumAge: number;
     private sex: string;
+    private explanations: string[];
 
-    constructor(study: Study, keyword: String) {
+    constructor(study: Study, keyword: string) {
         this.numberFound = 1;
         this.keywordsFound = [keyword];
         this.study = study;
@@ -41,7 +43,7 @@ export class StudyListEntry {
         }
     }
 
-    addFound(keyword: String) {
+    addFound(keyword: string) {
         this.numberFound += 1;
         this.keywordsFound.push(keyword);
     }
@@ -50,7 +52,7 @@ export class StudyListEntry {
         return this.numberFound;
     }
 
-    getKeywords(): String[] {
+    getKeywords(): string[] {
         return this.keywordsFound;
     }
 
@@ -74,39 +76,51 @@ export class StudyListEntry {
         return this.minimumAge;
     }
 
+    getExplanations(): string[] {
+        return this.explanations;
+    }
+
     calculateScore(
         isConditionMatching: boolean,
         isSexMatching: boolean,
         isAgeMatching: boolean
     ): number {
         var res: number = 0;
-
-        console.log('actually calculating score');
+        var sexDocValue: number = 0;
+        var ageDocValue: number = 0;
+        var locDocValue: number = 0;
+        var conDocValue: number = 0;
 
         if (isConditionMatching) {
-            res += 10000;
+            conDocValue = 1;
         }
 
         if (isSexMatching) {
-            res += 1000;
+            sexDocValue = 1;
         }
 
         if (isAgeMatching) {
-            res += 100;
+            ageDocValue = 1;
         }
 
-        res += this.getNumberFound() * 1;
+        var pnorm: ClinicalTrialsPNorm = new ClinicalTrialsPNorm(
+            ageDocValue,
+            sexDocValue,
+            conDocValue,
+            locDocValue,
+            this.getKeywords()
+        );
 
-        this.score = res;
-
-        return res;
+        this.explanations = pnorm.getExplanations();
+        this.score = pnorm.getRank();
+        return this.score;
     }
 }
 
 export class StudyList {
-    private list = new Map<String, StudyListEntry>();
+    private list = new Map<string, StudyListEntry>();
 
-    addStudy(study: Study, keyword: String) {
+    addStudy(study: Study, keyword: string) {
         var nct_id = study.ProtocolSection.IdentificationModule.NCTId;
         if (this.list.get(nct_id)) {
             //study is allready in list. Just add new keyword an increase numver
@@ -117,7 +131,7 @@ export class StudyList {
         }
     }
 
-    getStudyListEntires(): Map<String, StudyListEntry> {
+    getStudyListEntires(): Map<string, StudyListEntry> {
         return this.list;
     }
 
@@ -126,15 +140,13 @@ export class StudyList {
         patient_age: number,
         patient_sex: string
     ) {
-        this.list.forEach((value: StudyListEntry, key: String) => {
+        this.list.forEach((value: StudyListEntry, key: string) => {
             var nct_id = value.getStudy().ProtocolSection.IdentificationModule
                 .NCTId;
             var isConditionMatching: boolean = false;
             var isAgeMatching: boolean = false;
             var isSexMatching: boolean = false;
             var pSex = getGenderString(patient_sex);
-
-            console.log('calculating score');
 
             if (nct_ids.includes(nct_id)) {
                 isConditionMatching = true;

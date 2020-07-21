@@ -232,15 +232,18 @@ class ClinicalTrialsSearchParams {
     clinicalTrialsCountires: string[] = [];
     clinicalTrialsRecruitingStatus: RecruitingStatus[] = [];
     symbolsToSearch: string[] = [];
+    gender: string;
 
     constructor(
         clinicalTrialsCountires: string[],
         clinicalTrialsRecruitingStatus: RecruitingStatus[],
-        symbolsToSearch: string[] = []
+        symbolsToSearch: string[] = [],
+        gender: string
     ) {
         this.clinicalTrialsRecruitingStatus = clinicalTrialsRecruitingStatus;
         this.clinicalTrialsCountires = clinicalTrialsCountires;
         this.symbolsToSearch = symbolsToSearch;
+        this.gender = gender;
     }
 }
 
@@ -256,7 +259,8 @@ export class PatientViewPageStore {
     private clinicalTrialSerchParams: ClinicalTrialsSearchParams = new ClinicalTrialsSearchParams(
         [],
         [],
-        []
+        [],
+        ''
     );
 
     @observable public activeTabId = '';
@@ -1615,7 +1619,11 @@ export class PatientViewPageStore {
                     oncotree_codes_in_samples
                 );
 
-                study_list.calculateScores(trials_for_condtion, 20, 'female');
+                study_list.calculateScores(
+                    trials_for_condtion,
+                    20,
+                    clinicalTrialQuery.gender
+                );
 
                 console.log(study_list);
 
@@ -1712,6 +1720,7 @@ export class PatientViewPageStore {
                         condition_matching: false,
                         score: std.getScore(),
                         eligibility: eligibilityCriteria,
+                        explanation: std.getExplanations(),
                     };
                     result.push(newTrial);
                 }
@@ -1777,7 +1786,8 @@ export class PatientViewPageStore {
     public setClinicalTrialSearchParams(
         countries: string[],
         status: RecruitingStatus[],
-        symbols: string[]
+        symbols: string[],
+        gender: string
     ) {
         var cntr: string[] = [];
 
@@ -1790,7 +1800,8 @@ export class PatientViewPageStore {
         this.clinicalTrialSerchParams = new ClinicalTrialsSearchParams(
             cntr,
             status,
-            symbols
+            symbols,
+            gender
         );
     }
 }

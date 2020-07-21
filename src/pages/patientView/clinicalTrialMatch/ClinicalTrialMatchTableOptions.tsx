@@ -12,8 +12,10 @@ interface IClinicalTrialOptionsMatchProps {
 
 interface IClinicalTrialOptionsMatchState {
     mutationSymbolItems: Array<string>;
+    mutationNecSymbolItems: Array<string>;
     countryItems: Array<string>;
     recruitingItems: Array<string>;
+    gender: string;
     value?: string;
 }
 
@@ -23,14 +25,17 @@ class ClinicalTrialMatchTableOptions extends React.Component<
 > {
     recruiting_values: RecruitingStatus[] = [];
     countries: Array<String>;
+    genders: Array<String>;
 
     constructor(props: IClinicalTrialOptionsMatchProps) {
         super(props);
 
         this.state = {
             mutationSymbolItems: new Array<string>(),
+            mutationNecSymbolItems: new Array<string>(),
             countryItems: new Array<string>(),
             recruitingItems: new Array<string>(),
+            gender: 'All',
         };
 
         this.recruiting_values = [
@@ -44,6 +49,8 @@ class ClinicalTrialMatchTableOptions extends React.Component<
             RecruitingStatus.UnknownStatus,
             RecruitingStatus.Withdrawn,
         ];
+
+        this.genders = ['Male', 'Female', 'All'];
 
         this.countries = [
             'Afghanistan',
@@ -305,6 +312,7 @@ class ClinicalTrialMatchTableOptions extends React.Component<
 
     setSearchParams() {
         var symbols: string[] = this.state.mutationSymbolItems;
+        var necSymbols: string[] = this.state.mutationNecSymbolItems;
         var recruiting_stati: RecruitingStatus[] = this.state.recruitingItems.map(
             item => this.getRecruitingKeyFromValueString(item)
         );
@@ -317,7 +325,8 @@ class ClinicalTrialMatchTableOptions extends React.Component<
         this.props.store.setClinicalTrialSearchParams(
             countries_to_search,
             recruiting_stati,
-            symbols
+            symbols,
+            this.state.gender
         );
 
         console.log('smybols');
@@ -354,7 +363,7 @@ class ClinicalTrialMatchTableOptions extends React.Component<
                             name="mutationSearch"
                             className="basic-multi-select"
                             classNamePrefix="select"
-                            placeholder="Select mutations and additional search keywords..."
+                            placeholder="Select OPTIONAL mutations and additional search keywords..."
                             onChange={(selectedOption: Array<any>) => {
                                 const newMutations = [];
                                 if (selectedOption !== null) {
@@ -370,6 +379,39 @@ class ClinicalTrialMatchTableOptions extends React.Component<
                                 console.group('TRIALS Mutation Changed');
                                 console.log(this.state.mutationSymbolItems);
                                 console.groupEnd();
+                            }}
+                        />
+                    </div>
+                    <div
+                        style={{
+                            display: 'block',
+                            marginLeft: '5px',
+                            marginBottom: '5px',
+                        }}
+                    >
+                        <CreatableSelect
+                            options={this.props.store.mutationHugoGeneSymbols.map(
+                                geneSymbol => ({
+                                    label: geneSymbol,
+                                    value: geneSymbol,
+                                })
+                            )}
+                            isMulti
+                            name="mutationSearch"
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                            placeholder="Select NECESSARY mutations and additional search keywords..."
+                            onChange={(selectedOption: Array<any>) => {
+                                const newMutations = [];
+                                if (selectedOption !== null) {
+                                    const mutations = selectedOption.map(
+                                        item => item.value
+                                    );
+                                    newMutations.push(...mutations);
+                                }
+                                this.setState({
+                                    mutationNecSymbolItems: newMutations,
+                                });
                             }}
                         />
                     </div>
@@ -431,6 +473,34 @@ class ClinicalTrialMatchTableOptions extends React.Component<
                                 }
                                 this.setState({
                                     countryItems: newStatuses,
+                                });
+                            }}
+                        />
+                    </div>
+                    <div
+                        style={{
+                            display: 'block',
+                            marginLeft: '5px',
+                            marginBottom: '5px',
+                        }}
+                    >
+                        <Select
+                            options={this.genders.map(gender => ({
+                                label: gender,
+                                value: gender,
+                            }))}
+                            name="recruitingStatusSearch"
+                            defaultValue={{ label: 'All', value: 'All' }}
+                            className="basic-select"
+                            classNamePrefix="select"
+                            placeholder="Select gender..."
+                            onChange={(selectedOption: string) => {
+                                var newStatuses = '';
+                                if (selectedOption !== null) {
+                                    newStatuses = selectedOption;
+                                }
+                                this.setState({
+                                    gender: newStatuses,
                                 });
                             }}
                         />

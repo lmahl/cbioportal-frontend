@@ -27,6 +27,7 @@ enum ColumnKey {
     INTERVENTIONS = 'Interventions',
     SCORE = 'Score',
     ELIGIBILITY = 'Eligibility Criteria',
+    EXPLAINATION = 'Matching Criteria',
 }
 
 interface IClinicalTrialMatchProps {
@@ -58,6 +59,7 @@ export interface IDetailedClinicalTrialMatch {
     condition_matching: boolean;
     score: number;
     eligibility: string;
+    explanation: string[];
 }
 
 class ClinicalTrialMatchTableComponent extends LazyMobXTable<
@@ -68,7 +70,7 @@ class CollapseList extends React.PureComponent<
     ICollapseListProps,
     ICollapseListState
 > {
-    NUM_LIST_ELEMENTS = 3;
+    NUM_LIST_ELEMENTS = 5;
 
     getDiplayStyle(str: String[]) {
         if (str.length <= this.NUM_LIST_ELEMENTS) {
@@ -188,13 +190,13 @@ export class ClinicalTrialMatchTable extends React.Component<
 > {
     private readonly ENTRIES_PER_PAGE = 10;
     private _columns = [
-        {
+        /*{
             name: ColumnKey.SCORE,
             render: (trial: IDetailedClinicalTrialMatch) => (
                 <div>{trial.score}</div>
             ),
             width: 100,
-        },
+        },*/
         {
             name: ColumnKey.STATUS,
             render: (trial: IDetailedClinicalTrialMatch) => (
@@ -203,11 +205,13 @@ export class ClinicalTrialMatchTable extends React.Component<
             width: 300,
         },
         {
-            name: ColumnKey.KEYWORDS,
+            name: ColumnKey.EXPLAINATION,
             render: (trial: IDetailedClinicalTrialMatch) => (
-                <div>{trial.keywords}</div>
+                <div>
+                    <CollapseList elements={trial.explanation}></CollapseList>
+                </div>
             ),
-            width: 300,
+            width: 500,
         },
         {
             name: ColumnKey.TITLE,
