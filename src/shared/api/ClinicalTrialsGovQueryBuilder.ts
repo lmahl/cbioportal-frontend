@@ -62,21 +62,3 @@ export function getQuery(
 
     return resultQuery;
 }
-
-export function getBasicQuery() {
-    return getQuery(
-        ['Germany'],
-        [RecruitingStatus.Recruiting, RecruitingStatus.NotYetRecruiting]
-    );
-}
-
-export function getAllCountriesBasicQuery() {
-    return getQuery(
-        [],
-        [RecruitingStatus.Recruiting, RecruitingStatus.NotYetRecruiting]
-    );
-}
-
-export function getEverythingQuery() {
-    return getQuery([], []);
-}

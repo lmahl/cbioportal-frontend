@@ -1,12 +1,7 @@
 import * as request from 'superagent';
 import { ClinicalTrialsGovStudies } from './ClinicalTrialsGovStudyStrucutre';
 
-import {
-    getBasicQuery,
-    getEverythingQuery,
-    getAllCountriesBasicQuery,
-    getQuery,
-} from './ClinicalTrialsGovQueryBuilder';
+import { getQuery } from './ClinicalTrialsGovQueryBuilder';
 import { RecruitingStatus } from 'shared/enums/ClinicalTrialsGovRecruitingStatus';
 
 export async function searchStudiesForKeyword(
