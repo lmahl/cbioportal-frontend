@@ -1,6 +1,14 @@
 import { Study } from 'shared/api/ClinicalTrialsGovStudyStrucutre';
 import { ageAsNumber, getGenderString } from './AgeSexConverter';
 import { ClinicalTrialsPNorm } from './PNorm/ClinicalTrialsPNorm';
+import {
+    Location,
+    LocationList,
+} from 'shared/api/ClinicalTrialsGovStudyStrucutre';
+import {
+    cityHasRecord,
+    getDistanceBetweenCities,
+} from './location/CoordinateList';
 
 export class StudyListEntry {
     private numberFound: number;
@@ -52,6 +60,26 @@ export class StudyListEntry {
         return this.numberFound;
     }
 
+    getCities(): string[] {
+        var loc: string[] = [];
+        var locationModule: Location[] = [];
+
+        try {
+            locationModule = this.getStudy().ProtocolSection
+                .ContactsLocationsModule.LocationList.Location;
+        } catch (e) {
+            //no location module in study
+            locationModule = [];
+        }
+
+        for (let i = 0; i < locationModule.length; i++) {
+            let location: Location = locationModule[i];
+            loc.push(location.LocationCity);
+        }
+
+        return loc;
+    }
+
     getKeywords(): string[] {
         return this.keywordsFound;
     }
@@ -83,13 +111,16 @@ export class StudyListEntry {
     calculateScore(
         isConditionMatching: boolean,
         isSexMatching: boolean,
-        isAgeMatching: boolean
+        isAgeMatching: boolean,
+        patientDistance: number,
+        closestCity: string
     ): number {
         var res: number = 0;
         var sexDocValue: number = 0;
         var ageDocValue: number = 0;
         var locDocValue: number = 0;
         var conDocValue: number = 0;
+        var distanceDocValue: number = -1;
 
         if (isConditionMatching) {
             conDocValue = 1;
@@ -103,12 +134,15 @@ export class StudyListEntry {
             ageDocValue = 1;
         }
 
+        locDocValue = patientDistance;
+
         var pnorm: ClinicalTrialsPNorm = new ClinicalTrialsPNorm(
             ageDocValue,
             sexDocValue,
             conDocValue,
             locDocValue,
-            this.getKeywords()
+            this.getKeywords(),
+            closestCity
         );
 
         this.explanations = pnorm.getExplanations();
@@ -138,7 +172,8 @@ export class StudyList {
     calculateScores(
         nct_ids: string[],
         patient_age: number,
-        patient_sex: string
+        patient_sex: string,
+        patientLocation: string
     ) {
         this.list.forEach((value: StudyListEntry, key: string) => {
             var nct_id = value.getStudy().ProtocolSection.IdentificationModule
@@ -147,27 +182,20 @@ export class StudyList {
             var isAgeMatching: boolean = false;
             var isSexMatching: boolean = false;
             var pSex = getGenderString(patient_sex);
+            var patientDistance: number = -1;
+            var studyCities: string[] = value.getCities();
+            var closestCity: string = '';
 
             if (nct_ids.includes(nct_id)) {
                 isConditionMatching = true;
                 console.log('Match found');
             }
 
-            console.log('sex');
-            console.log(pSex);
-            console.log(value.getSex());
-
             if (pSex == 'All' || value.getSex() == 'All') {
                 isSexMatching = true;
             } else if (pSex == value.getSex()) {
                 isSexMatching = true;
             }
-
-            console.log('maxAge');
-            console.log(value.getMaximumAge());
-            console.log(patient_age);
-            console.log('minAge');
-            console.log(value.getMinimumAge());
 
             if (value.getMinimumAge() >= 0) {
                 if (value.getMaximumAge() >= 0) {
@@ -183,12 +211,32 @@ export class StudyList {
                 isAgeMatching = true;
             }
 
-            console.log(isAgeMatching);
-            console.log(isSexMatching);
+            if (cityHasRecord(patientLocation)) {
+                studyCities.forEach(function(c) {
+                    var currDistance: number = getDistanceBetweenCities(
+                        patientLocation,
+                        c
+                    );
+                    if (currDistance >= 0) {
+                        if (
+                            currDistance < patientDistance ||
+                            patientDistance < 0
+                        ) {
+                            patientDistance = currDistance;
+                            closestCity = c;
+                        }
+                    }
+                });
+            } else {
+                patientDistance = -1;
+            }
+
             value.calculateScore(
                 isConditionMatching,
                 isSexMatching,
-                isAgeMatching
+                isAgeMatching,
+                patientDistance,
+                closestCity
             );
         });
     }

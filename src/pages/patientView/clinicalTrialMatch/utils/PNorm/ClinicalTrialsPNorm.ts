@@ -8,7 +8,8 @@ export class ClinicalTrialsPNorm extends PNormModel {
         sexDocumentValue: number,
         conditionDocumentValue: number,
         distanceDocumentValue: number,
-        queryFoundKeywords: string[]
+        queryFoundKeywords: string[],
+        closestCity: string
     ) {
         var p: number = 2;
         var rankingDimensions: RankingDimension[] = [];
@@ -32,9 +33,10 @@ export class ClinicalTrialsPNorm extends PNormModel {
             )
         );
         rankingDimensions.push(
-            builder.buildRankingDimension(
+            builder.buildRankingDimensionForCity(
                 RankingDimensionName.Distance,
-                distanceDocumentValue
+                distanceDocumentValue,
+                closestCity
             )
         );
         rankingDimensions.push(

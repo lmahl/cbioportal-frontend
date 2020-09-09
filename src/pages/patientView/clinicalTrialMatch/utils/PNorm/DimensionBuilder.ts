@@ -7,8 +7,7 @@ export class DimensionBuilder {
 
     private DISTANCE_QUERY_WEIGHT = 0.6;
     private DISTANCE_DOCUMENT_VALUE_TO_WEIGHT = 0.01;
-    private DISTANCE_EXPLANATION =
-        'Distance from patient to closest study location is ';
+    private DISTANCE_EXPLANATION = 'Distance from patient to ';
 
     private CONDITION_QUERY_WEIGHT = 0.8;
     private CONDITION_DOCUMENT_VALUE_TO_WEIGHT = 0.01;
@@ -33,14 +32,6 @@ export class DimensionBuilder {
                     this.AGE_QUERY_WEIGHT,
                     documentValue * this.AGE_DOCUMENT_VALUE_TO_WEIGHT,
                     this.AGE_EXPLANATION,
-                    documentValue
-                );
-            case RankingDimensionName.Distance:
-                return new RankingDimension(
-                    name,
-                    this.DISTANCE_QUERY_WEIGHT,
-                    documentValue * this.DISTANCE_DOCUMENT_VALUE_TO_WEIGHT,
-                    this.DISTANCE_EXPLANATION + documentValue + ' km',
                     documentValue
                 );
             case RankingDimensionName.Condition:
@@ -104,6 +95,51 @@ export class DimensionBuilder {
                     '',
                     0
                 );
+        }
+    }
+
+    public buildRankingDimensionForCity(
+        name: RankingDimensionName,
+        documentValue: number,
+        cityName: string
+    ): RankingDimension {
+        switch (name) {
+            case RankingDimensionName.Distance:
+                var explanation: string = '';
+
+                return new RankingDimension(
+                    name,
+                    this.DISTANCE_QUERY_WEIGHT,
+                    this.calculateDistanceWeight(documentValue),
+                    this.DISTANCE_EXPLANATION +
+                        cityName +
+                        ' is ' +
+                        documentValue.toFixed() +
+                        ' km',
+                    documentValue
+                );
+            default:
+                return new RankingDimension(
+                    RankingDimensionName.None,
+                    0,
+                    0,
+                    '',
+                    0
+                );
+        }
+    }
+
+    private calculateDistanceWeight(distance: number): number {
+        var curr = distance;
+        if (distance == -1) {
+            return 0;
+        } else {
+            curr = 1000 - distance;
+            if (curr < 0) {
+                return 0;
+            }
+
+            return curr;
         }
     }
 }

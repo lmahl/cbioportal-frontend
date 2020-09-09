@@ -10,6 +10,7 @@ import {
     countriesNames,
     genderNames,
 } from './utils/SelectValues';
+import { CITIES_AND_COORDINATES } from './utils/location/CoordinateList';
 
 interface IClinicalTrialOptionsMatchProps {
     store: PatientViewPageStore;
@@ -21,6 +22,7 @@ interface IClinicalTrialOptionsMatchState {
     countryItems: Array<string>;
     recruitingItems: Array<string>;
     gender: string;
+    patientLocation: string;
     value?: string;
 }
 
@@ -31,6 +33,7 @@ class ClinicalTrialMatchTableOptions extends React.Component<
     recruiting_values: RecruitingStatus[] = [];
     countries: Array<String>;
     genders: Array<String>;
+    locationsWithCoordinates: Array<String>;
 
     constructor(props: IClinicalTrialOptionsMatchProps) {
         super(props);
@@ -40,6 +43,7 @@ class ClinicalTrialMatchTableOptions extends React.Component<
             mutationNecSymbolItems: new Array<string>(),
             countryItems: new Array<string>(),
             recruitingItems: new Array<string>(),
+            patientLocation: '',
             gender: 'All',
         };
 
@@ -47,6 +51,7 @@ class ClinicalTrialMatchTableOptions extends React.Component<
 
         this.genders = genderNames;
         this.countries = countriesNames;
+        this.locationsWithCoordinates = Object.keys(CITIES_AND_COORDINATES);
     }
 
     getRecruitingKeyFromValueString(value: string): RecruitingStatus {
@@ -66,6 +71,8 @@ class ClinicalTrialMatchTableOptions extends React.Component<
             item => this.getRecruitingKeyFromValueString(item)
         );
         var countries_to_search: string[] = this.state.countryItems;
+        var gender: string = this.state.gender;
+        var patientLocation = this.state.patientLocation;
 
         console.group('TRIALS start search');
         console.log(this.state);
@@ -76,7 +83,8 @@ class ClinicalTrialMatchTableOptions extends React.Component<
             recruiting_stati,
             symbols,
             necSymbols,
-            this.state.gender
+            gender,
+            patientLocation
         );
 
         console.log('smybols');
@@ -241,18 +249,48 @@ class ClinicalTrialMatchTableOptions extends React.Component<
                                 label: gender,
                                 value: gender,
                             }))}
-                            name="recruitingStatusSearch"
+                            name="genderSearch"
                             defaultValue={{ label: 'All', value: 'All' }}
                             className="basic-select"
                             classNamePrefix="select"
                             placeholder="Select gender..."
-                            onChange={(selectedOption: string) => {
+                            onChange={(selectedOption: any) => {
                                 var newStatuses = '';
                                 if (selectedOption !== null) {
-                                    newStatuses = selectedOption;
+                                    newStatuses = selectedOption.value;
                                 }
                                 this.setState({
                                     gender: newStatuses,
+                                });
+                            }}
+                        />
+                    </div>
+
+                    <div
+                        style={{
+                            display: 'block',
+                            marginLeft: '5px',
+                            marginBottom: '5px',
+                        }}
+                    >
+                        <Select
+                            options={this.locationsWithCoordinates.map(
+                                city => ({
+                                    label: city,
+                                    value: city,
+                                })
+                            )}
+                            name="locationDistance"
+                            className="basic-select"
+                            classNamePrefix="select"
+                            placeholder="Select patient location..."
+                            onChange={(selectedOption: any) => {
+                                var newStatuses = '';
+                                if (selectedOption !== null) {
+                                    newStatuses = selectedOption.value;
+                                }
+                                this.setState({
+                                    patientLocation: newStatuses,
                                 });
                             }}
                         />
