@@ -9,6 +9,7 @@ import {
     recruitingValueNames,
     countriesNames,
     genderNames,
+    ages,
 } from './utils/SelectValues';
 import { CITIES_AND_COORDINATES } from './utils/location/CoordinateList';
 
@@ -24,6 +25,7 @@ interface IClinicalTrialOptionsMatchState {
     gender: string;
     patientLocation: string;
     value?: string;
+    age: number;
 }
 
 class ClinicalTrialMatchTableOptions extends React.Component<
@@ -34,6 +36,7 @@ class ClinicalTrialMatchTableOptions extends React.Component<
     countries: Array<String>;
     genders: Array<String>;
     locationsWithCoordinates: Array<String>;
+    ageList: Array<number>;
 
     constructor(props: IClinicalTrialOptionsMatchProps) {
         super(props);
@@ -45,6 +48,7 @@ class ClinicalTrialMatchTableOptions extends React.Component<
             recruitingItems: new Array<string>(),
             patientLocation: '',
             gender: 'All',
+            age: 0,
         };
 
         this.recruiting_values = recruitingValueNames;
@@ -52,6 +56,7 @@ class ClinicalTrialMatchTableOptions extends React.Component<
         this.genders = genderNames;
         this.countries = countriesNames;
         this.locationsWithCoordinates = Object.keys(CITIES_AND_COORDINATES);
+        this.ageList = ages;
     }
 
     getRecruitingKeyFromValueString(value: string): RecruitingStatus {
@@ -73,6 +78,7 @@ class ClinicalTrialMatchTableOptions extends React.Component<
         var countries_to_search: string[] = this.state.countryItems;
         var gender: string = this.state.gender;
         var patientLocation = this.state.patientLocation;
+        var patientAge = this.state.age;
 
         console.group('TRIALS start search');
         console.log(this.state);
@@ -84,7 +90,8 @@ class ClinicalTrialMatchTableOptions extends React.Component<
             symbols,
             necSymbols,
             gender,
-            patientLocation
+            patientLocation,
+            patientAge
         );
 
         console.log('smybols');
@@ -237,6 +244,35 @@ class ClinicalTrialMatchTableOptions extends React.Component<
                             }}
                         />
                     </div>
+
+                    <div
+                        style={{
+                            display: 'block',
+                            marginLeft: '5px',
+                            marginBottom: '5px',
+                        }}
+                    >
+                        <Select
+                            options={this.ageList.map(age => ({
+                                label: age,
+                                value: age,
+                            }))}
+                            name="ageSearch"
+                            className="basic-select"
+                            classNamePrefix="select"
+                            placeholder="Select age..."
+                            onChange={(selectedOption: any) => {
+                                var newStatuses = '';
+                                if (selectedOption !== null) {
+                                    newStatuses = selectedOption.value;
+                                }
+                                this.setState({
+                                    age: +newStatuses,
+                                });
+                            }}
+                        />
+                    </div>
+
                     <div
                         style={{
                             display: 'block',

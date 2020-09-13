@@ -197,18 +197,22 @@ export class StudyList {
                 isSexMatching = true;
             }
 
-            if (value.getMinimumAge() >= 0) {
-                if (value.getMaximumAge() >= 0) {
-                    isAgeMatching =
-                        value.getMinimumAge() <= patient_age &&
-                        patient_age <= value.getMaximumAge();
-                } else {
-                    isAgeMatching = value.getMinimumAge() <= patient_age;
-                }
-            } else if (value.getMaximumAge() >= 0) {
-                isAgeMatching = patient_age <= value.getMaximumAge();
-            } else {
+            if (patient_age <= 0) {
                 isAgeMatching = true;
+            } else {
+                if (value.getMinimumAge() >= 0) {
+                    if (value.getMaximumAge() >= 0) {
+                        isAgeMatching =
+                            value.getMinimumAge() <= patient_age &&
+                            patient_age <= value.getMaximumAge();
+                    } else {
+                        isAgeMatching = value.getMinimumAge() <= patient_age;
+                    }
+                } else if (value.getMaximumAge() >= 0) {
+                    isAgeMatching = patient_age <= value.getMaximumAge();
+                } else {
+                    isAgeMatching = true;
+                }
             }
 
             if (cityHasRecord(patientLocation)) {

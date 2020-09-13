@@ -284,6 +284,11 @@ export class ClinicalTrialMatchTable extends React.Component<
                     <ClinicalTrialMatchTableOptions store={this.props.store} />
                 </div>
                 <div>
+                    <LoadingIndicator
+                        center={true}
+                        isLoading={this.props.store.isClinicalTrialsLoading}
+                        size="big"
+                    ></LoadingIndicator>
                     <ClinicalTrialMatchTableComponent
                         data={this.props.clinicalTrialMatches}
                         columns={this._columns}
