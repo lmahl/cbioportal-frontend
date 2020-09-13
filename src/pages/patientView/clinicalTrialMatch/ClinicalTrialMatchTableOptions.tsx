@@ -12,6 +12,22 @@ import {
     ages,
 } from './utils/SelectValues';
 import { CITIES_AND_COORDINATES } from './utils/location/CoordinateList';
+import { DefaultTooltip } from 'cbioportal-frontend-commons';
+
+const OPTIONAL_MUTATIONS_TOOLTIP: string =
+    'Search studies for selected keywords. Studies containing at least one keyword are found. You may add custom keywords.';
+const NECESSARY_MUTATIONS_TOOLTIP: string =
+    'Search studies for selected keywords. Study MUST contain ALL keywords to be found. You may add custom keywords.';
+const STATUS_TOOLTIP: string =
+    'Search for recruiting status. Studies not in one of the selectet stati are not found.';
+const COUNTIRES_TOOLTIP: string =
+    'Select recruiting countries for studies. Only studies recruiting in at least one selected country are found.';
+const AGE_TOOLTIP: string =
+    'Select age of the patient. Studies with matching ages are ranked higher.';
+const SEX_TOOLTIP: string =
+    'Select gender of the patient. Studies with matching gender are ranked higher.';
+const LOCATION_TOOLTIP: string =
+    'Select exact location of patient. Studies with closer recruiting sites are ranked higher. This function decreases search speed.';
 
 interface IClinicalTrialOptionsMatchProps {
     store: PatientViewPageStore;
@@ -112,225 +128,276 @@ class ClinicalTrialMatchTableOptions extends React.Component<
                         maxWidth: '40%',
                     }}
                 >
-                    <div
-                        style={{
-                            display: 'block',
-                            marginLeft: '5px',
-                            marginBottom: '5px',
-                        }}
+                    <DefaultTooltip
+                        overlay={OPTIONAL_MUTATIONS_TOOLTIP}
+                        placement="topRight"
+                        trigger={['hover', 'focus']}
+                        destroyTooltipOnHide={true}
                     >
-                        <CreatableSelect
-                            options={this.props.store.mutationHugoGeneSymbols.map(
-                                geneSymbol => ({
-                                    label: geneSymbol,
-                                    value: geneSymbol,
-                                })
-                            )}
-                            isMulti
-                            name="mutationSearch"
-                            className="basic-multi-select"
-                            classNamePrefix="select"
-                            placeholder="Select OPTIONAL mutations and additional search keywords..."
-                            onChange={(selectedOption: Array<any>) => {
-                                const newMutations = [];
-                                if (selectedOption !== null) {
-                                    const mutations = selectedOption.map(
-                                        item => item.value
-                                    );
-                                    newMutations.push(...mutations);
-                                }
-                                this.setState({
-                                    mutationSymbolItems: newMutations,
-                                });
+                        <div
+                            style={{
+                                display: 'block',
+                                marginLeft: '5px',
+                                marginBottom: '5px',
+                            }}
+                        >
+                            <CreatableSelect
+                                options={this.props.store.mutationHugoGeneSymbols.map(
+                                    geneSymbol => ({
+                                        label: geneSymbol,
+                                        value: geneSymbol,
+                                    })
+                                )}
+                                isMulti
+                                name="mutationSearch"
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                placeholder="Select OPTIONAL mutations and additional search keywords..."
+                                onChange={(selectedOption: Array<any>) => {
+                                    const newMutations = [];
+                                    if (selectedOption !== null) {
+                                        const mutations = selectedOption.map(
+                                            item => item.value
+                                        );
+                                        newMutations.push(...mutations);
+                                    }
+                                    this.setState({
+                                        mutationSymbolItems: newMutations,
+                                    });
 
-                                console.group('TRIALS Mutation Changed');
-                                console.log(this.state.mutationSymbolItems);
-                                console.groupEnd();
-                            }}
-                        />
-                    </div>
-                    <div
-                        style={{
-                            display: 'block',
-                            marginLeft: '5px',
-                            marginBottom: '5px',
-                        }}
+                                    console.group('TRIALS Mutation Changed');
+                                    console.log(this.state.mutationSymbolItems);
+                                    console.groupEnd();
+                                }}
+                            />
+                        </div>
+                    </DefaultTooltip>
+                    <DefaultTooltip
+                        overlay={NECESSARY_MUTATIONS_TOOLTIP}
+                        placement="topRight"
+                        trigger={['hover', 'focus']}
+                        destroyTooltipOnHide={true}
                     >
-                        <CreatableSelect
-                            options={this.props.store.mutationHugoGeneSymbols.map(
-                                geneSymbol => ({
-                                    label: geneSymbol,
-                                    value: geneSymbol,
-                                })
-                            )}
-                            isMulti
-                            name="mutationSearch"
-                            className="basic-multi-select"
-                            classNamePrefix="select"
-                            placeholder="Select NECESSARY mutations and additional search keywords..."
-                            onChange={(selectedOption: Array<any>) => {
-                                const newMutations = [];
-                                if (selectedOption !== null) {
-                                    const mutations = selectedOption.map(
-                                        item => item.value
-                                    );
-                                    newMutations.push(...mutations);
-                                }
-                                this.setState({
-                                    mutationNecSymbolItems: newMutations,
-                                });
+                        <div
+                            style={{
+                                display: 'block',
+                                marginLeft: '5px',
+                                marginBottom: '5px',
                             }}
-                        />
-                    </div>
-                    <div
-                        style={{
-                            display: 'block',
-                            marginLeft: '5px',
-                            marginBottom: '5px',
-                        }}
+                        >
+                            <CreatableSelect
+                                options={this.props.store.mutationHugoGeneSymbols.map(
+                                    geneSymbol => ({
+                                        label: geneSymbol,
+                                        value: geneSymbol,
+                                    })
+                                )}
+                                isMulti
+                                name="mutationSearch"
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                placeholder="Select NECESSARY mutations and additional search keywords..."
+                                onChange={(selectedOption: Array<any>) => {
+                                    const newMutations = [];
+                                    if (selectedOption !== null) {
+                                        const mutations = selectedOption.map(
+                                            item => item.value
+                                        );
+                                        newMutations.push(...mutations);
+                                    }
+                                    this.setState({
+                                        mutationNecSymbolItems: newMutations,
+                                    });
+                                }}
+                            />
+                        </div>
+                    </DefaultTooltip>
+                    <DefaultTooltip
+                        overlay={STATUS_TOOLTIP}
+                        placement="topRight"
+                        trigger={['hover', 'focus']}
+                        destroyTooltipOnHide={true}
                     >
-                        <Select
-                            options={this.recruiting_values.map(recStatus => ({
-                                label: recStatus,
-                                value: recStatus,
-                            }))}
-                            isMulti
-                            name="recruitingStatusSearch"
-                            className="basic-multi-select"
-                            classNamePrefix="select"
-                            placeholder="Select status..."
-                            onChange={(selectedOption: Array<any>) => {
-                                const newStatuses = [];
-                                if (selectedOption !== null) {
-                                    const statuses = selectedOption.map(
-                                        item => item.value
-                                    );
-                                    newStatuses.push(...statuses);
-                                }
-                                this.setState({
-                                    recruitingItems: newStatuses,
-                                });
+                        <div
+                            style={{
+                                display: 'block',
+                                marginLeft: '5px',
+                                marginBottom: '5px',
                             }}
-                        />
-                    </div>
-                    <div
-                        style={{
-                            display: 'block',
-                            marginLeft: '5px',
-                            marginBottom: '5px',
-                        }}
+                        >
+                            <Select
+                                options={this.recruiting_values.map(
+                                    recStatus => ({
+                                        label: recStatus,
+                                        value: recStatus,
+                                    })
+                                )}
+                                isMulti
+                                name="recruitingStatusSearch"
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                placeholder="Select status..."
+                                onChange={(selectedOption: Array<any>) => {
+                                    const newStatuses = [];
+                                    if (selectedOption !== null) {
+                                        const statuses = selectedOption.map(
+                                            item => item.value
+                                        );
+                                        newStatuses.push(...statuses);
+                                    }
+                                    this.setState({
+                                        recruitingItems: newStatuses,
+                                    });
+                                }}
+                            />
+                        </div>
+                    </DefaultTooltip>
+                    <DefaultTooltip
+                        overlay={COUNTIRES_TOOLTIP}
+                        placement="topRight"
+                        trigger={['hover', 'focus']}
+                        destroyTooltipOnHide={true}
                     >
-                        <Select
-                            options={this.countries.map(cnt => ({
-                                label: cnt,
-                                value: cnt,
-                            }))}
-                            isMulti
-                            name="CountrySearch"
-                            className="basic-multi-select"
-                            classNamePrefix="select"
-                            placeholder="Select countries..."
-                            onChange={(selectedOption: Array<any>) => {
-                                const newStatuses = [];
-                                if (selectedOption !== null) {
-                                    const statuses = selectedOption.map(
-                                        item => item.value
-                                    );
-                                    newStatuses.push(...statuses);
-                                }
-                                this.setState({
-                                    countryItems: newStatuses,
-                                });
+                        <div
+                            style={{
+                                display: 'block',
+                                marginLeft: '5px',
+                                marginBottom: '5px',
                             }}
-                        />
-                    </div>
+                        >
+                            <Select
+                                options={this.countries.map(cnt => ({
+                                    label: cnt,
+                                    value: cnt,
+                                }))}
+                                isMulti
+                                name="CountrySearch"
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                placeholder="Select countries..."
+                                onChange={(selectedOption: Array<any>) => {
+                                    const newStatuses = [];
+                                    if (selectedOption !== null) {
+                                        const statuses = selectedOption.map(
+                                            item => item.value
+                                        );
+                                        newStatuses.push(...statuses);
+                                    }
+                                    this.setState({
+                                        countryItems: newStatuses,
+                                    });
+                                }}
+                            />
+                        </div>
+                    </DefaultTooltip>
 
-                    <div
-                        style={{
-                            display: 'block',
-                            marginLeft: '5px',
-                            marginBottom: '5px',
-                        }}
+                    <DefaultTooltip
+                        overlay={AGE_TOOLTIP}
+                        placement="topRight"
+                        trigger={['hover', 'focus']}
+                        destroyTooltipOnHide={true}
                     >
-                        <Select
-                            options={this.ageList.map(age => ({
-                                label: age,
-                                value: age,
-                            }))}
-                            name="ageSearch"
-                            className="basic-select"
-                            classNamePrefix="select"
-                            placeholder="Select age..."
-                            onChange={(selectedOption: any) => {
-                                var newStatuses = '';
-                                if (selectedOption !== null) {
-                                    newStatuses = selectedOption.value;
-                                }
-                                this.setState({
-                                    age: +newStatuses,
-                                });
+                        <div
+                            style={{
+                                display: 'block',
+                                marginLeft: '5px',
+                                marginBottom: '5px',
                             }}
-                        />
-                    </div>
+                        >
+                            <Select
+                                options={this.ageList.map(age => ({
+                                    label: age,
+                                    value: age,
+                                }))}
+                                name="ageSearch"
+                                className="basic-select"
+                                classNamePrefix="select"
+                                placeholder="Select age..."
+                                onChange={(selectedOption: any) => {
+                                    var newStatuses = '';
+                                    if (selectedOption !== null) {
+                                        newStatuses = selectedOption.value;
+                                    }
+                                    this.setState({
+                                        age: +newStatuses,
+                                    });
+                                }}
+                            />
+                        </div>
+                    </DefaultTooltip>
 
-                    <div
-                        style={{
-                            display: 'block',
-                            marginLeft: '5px',
-                            marginBottom: '5px',
-                        }}
+                    <DefaultTooltip
+                        overlay={SEX_TOOLTIP}
+                        placement="topRight"
+                        trigger={['hover', 'focus']}
+                        destroyTooltipOnHide={true}
                     >
-                        <Select
-                            options={this.genders.map(gender => ({
-                                label: gender,
-                                value: gender,
-                            }))}
-                            name="genderSearch"
-                            defaultValue={{ label: 'All', value: 'All' }}
-                            className="basic-select"
-                            classNamePrefix="select"
-                            placeholder="Select gender..."
-                            onChange={(selectedOption: any) => {
-                                var newStatuses = '';
-                                if (selectedOption !== null) {
-                                    newStatuses = selectedOption.value;
-                                }
-                                this.setState({
-                                    gender: newStatuses,
-                                });
+                        <div
+                            style={{
+                                display: 'block',
+                                marginLeft: '5px',
+                                marginBottom: '5px',
                             }}
-                        />
-                    </div>
+                        >
+                            <Select
+                                options={this.genders.map(gender => ({
+                                    label: gender,
+                                    value: gender,
+                                }))}
+                                name="genderSearch"
+                                defaultValue={{ label: 'All', value: 'All' }}
+                                className="basic-select"
+                                classNamePrefix="select"
+                                placeholder="Select gender..."
+                                onChange={(selectedOption: any) => {
+                                    var newStatuses = '';
+                                    if (selectedOption !== null) {
+                                        newStatuses = selectedOption.value;
+                                    }
+                                    this.setState({
+                                        gender: newStatuses,
+                                    });
+                                }}
+                            />
+                        </div>
+                    </DefaultTooltip>
 
-                    <div
-                        style={{
-                            display: 'block',
-                            marginLeft: '5px',
-                            marginBottom: '5px',
-                        }}
+                    <DefaultTooltip
+                        overlay={LOCATION_TOOLTIP}
+                        placement="topRight"
+                        trigger={['hover', 'focus']}
+                        destroyTooltipOnHide={true}
                     >
-                        <Select
-                            options={this.locationsWithCoordinates.map(
-                                city => ({
-                                    label: city,
-                                    value: city,
-                                })
-                            )}
-                            name="locationDistance"
-                            className="basic-select"
-                            classNamePrefix="select"
-                            placeholder="Select patient location..."
-                            onChange={(selectedOption: any) => {
-                                var newStatuses = '';
-                                if (selectedOption !== null) {
-                                    newStatuses = selectedOption.value;
-                                }
-                                this.setState({
-                                    patientLocation: newStatuses,
-                                });
+                        <div
+                            style={{
+                                display: 'block',
+                                marginLeft: '5px',
+                                marginBottom: '5px',
                             }}
-                        />
-                    </div>
+                        >
+                            <Select
+                                options={this.locationsWithCoordinates.map(
+                                    city => ({
+                                        label: city,
+                                        value: city,
+                                    })
+                                )}
+                                name="locationDistance"
+                                className="basic-select"
+                                classNamePrefix="select"
+                                placeholder="Select patient location..."
+                                onChange={(selectedOption: any) => {
+                                    var newStatuses = '';
+                                    if (selectedOption !== null) {
+                                        newStatuses = selectedOption.value;
+                                    }
+                                    this.setState({
+                                        patientLocation: newStatuses,
+                                    });
+                                }}
+                            />
+                        </div>
+                    </DefaultTooltip>
                 </div>
                 <div>
                     <button
