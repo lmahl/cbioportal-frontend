@@ -57,19 +57,31 @@ export async function getStudiesByCondtionsFromOncoKBasString(): Promise<
     String
 > {
     const oncokb_studies_url = 'https://test.oncokb.org/trials';
-    return request.get(oncokb_studies_url).then(res => {
-        return res.text;
-    });
+    return request
+        .get(oncokb_studies_url)
+        .then(res => {
+            return res.text;
+        })
+        .catch(err => {
+            var result = '{}';
+            return result;
+        });
 }
 
 export async function getStudiesByCondtionsFromOncoKB(): Promise<
     IOncoKBStudyDictionary
 > {
     const oncokb_studies_url = 'https://test.oncokb.org/trials';
-    return request.get(oncokb_studies_url).then(res => {
-        var result: IOncoKBStudyDictionary = JSON.parse(res.text);
-        return result;
-    });
+    return request
+        .get(oncokb_studies_url)
+        .then(res => {
+            var result: IOncoKBStudyDictionary = JSON.parse(res.text);
+            return result;
+        })
+        .catch(err => {
+            var result: IOncoKBStudyDictionary = {};
+            return result;
+        });
 }
 
 //Only includes fields relevant for ClinicalTrials.Gov search

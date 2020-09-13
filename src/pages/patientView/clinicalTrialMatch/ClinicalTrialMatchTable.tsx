@@ -15,6 +15,7 @@ import {
 import { StudyList, StudyListEntry } from './utils/StudyList';
 import LazyMobXTable from '../../../shared/components/lazyMobXTable/LazyMobXTable';
 import ClinicalTrialMatchTableOptions from './ClinicalTrialMatchTableOptions';
+import LoadingIndicator from 'shared/components/loadingIndicator/LoadingIndicator';
 
 enum ColumnKey {
     NUM_FOUND = 'Appearences',

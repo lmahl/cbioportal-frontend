@@ -1,12 +1,5 @@
 import { Coordinate } from './coordinate';
 
-export const CITIES_AND_COORDINATES: { [name: string]: Coordinate } = {
-    Erlangen: new Coordinate(49.6, 11.0),
-    Leipzig: new Coordinate(51.359, 12.377),
-    Dresden: new Coordinate(51.05, 13.739),
-    Würzburg: new Coordinate(49.48, 9.56),
-};
-
 export function getDistanceBetweenCities(a: string, b: string): number {
     var city_a: Coordinate;
     var city_b: Coordinate;
@@ -31,3 +24,10 @@ export function getDistanceBetweenCities(a: string, b: string): number {
 export function cityHasRecord(city: string): boolean {
     return city in CITIES_AND_COORDINATES;
 }
+
+export const CITIES_AND_COORDINATES: { [name: string]: Coordinate } = {
+    Erlangen: new Coordinate(49.6, 11.0),
+    Leipzig: new Coordinate(51.359, 12.377),
+    Dresden: new Coordinate(51.05, 13.739),
+    Würzburg: new Coordinate(49.48, 9.56),
+};
