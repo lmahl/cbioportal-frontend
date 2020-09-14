@@ -236,6 +236,8 @@ class ClinicalTrialsSearchParams {
     gender: string;
     patientLocation: string;
     age: number;
+    filterDistance: boolean;
+    maximumDistance: number;
 
     constructor(
         clinicalTrialsCountires: string[],
@@ -244,7 +246,9 @@ class ClinicalTrialsSearchParams {
         necSymbolsToSearch: string[] = [],
         gender: string,
         patientLocation: string,
-        age: number
+        age: number,
+        filterDistance: boolean,
+        maximumDistance: number
     ) {
         this.clinicalTrialsRecruitingStatus = clinicalTrialsRecruitingStatus;
         this.clinicalTrialsCountires = clinicalTrialsCountires;
@@ -253,6 +257,8 @@ class ClinicalTrialsSearchParams {
         this.gender = gender;
         this.patientLocation = patientLocation;
         this.age = age;
+        this.filterDistance = filterDistance;
+        this.maximumDistance = maximumDistance;
     }
 }
 
@@ -276,6 +282,8 @@ export class PatientViewPageStore {
         [],
         '',
         '',
+        0,
+        false,
         0
     );
 
@@ -1655,6 +1663,15 @@ export class PatientViewPageStore {
                     clinicalTrialQuery.patientLocation
                 );
 
+                if (
+                    clinicalTrialQuery.filterDistance &&
+                    clinicalTrialQuery.maximumDistance > 0
+                ) {
+                    study_list.filterByDistance(
+                        clinicalTrialQuery.maximumDistance
+                    );
+                }
+
                 console.log(study_list);
 
                 var tmp: Map<
@@ -1826,7 +1843,9 @@ export class PatientViewPageStore {
         necSymbols: string[],
         gender: string,
         patientLocation: string,
-        age: number
+        age: number,
+        filterDistance: boolean,
+        maximumDistance: number
     ) {
         var cntr: string[] = [];
 
@@ -1846,7 +1865,9 @@ export class PatientViewPageStore {
             necSymbols,
             gender,
             patientLocation,
-            age
+            age,
+            filterDistance,
+            maximumDistance
         );
     }
 }

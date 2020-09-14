@@ -12,6 +12,7 @@ import {
     ages,
 } from './utils/SelectValues';
 import { CITIES_AND_COORDINATES } from './utils/location/CoordinateList';
+import { Collapse } from 'react-collapse';
 import { DefaultTooltip } from 'cbioportal-frontend-commons';
 
 const OPTIONAL_MUTATIONS_TOOLTIP: string =
@@ -29,6 +30,9 @@ const SEX_TOOLTIP: string =
 const LOCATION_TOOLTIP: string =
     'Select exact location of patient. Studies with closer recruiting sites are ranked higher. This function decreases search speed.';
 
+const MAX_DISTANCE_TOOLTIP: string =
+    'Select the maximum distance from patient to closest recruiting site. Other studies are not shown, unless none of the locations were recognized';
+
 interface IClinicalTrialOptionsMatchProps {
     store: PatientViewPageStore;
 }
@@ -42,6 +46,8 @@ interface IClinicalTrialOptionsMatchState {
     patientLocation: string;
     value?: string;
     age: number;
+    maxDistance: string;
+    isOpened: boolean;
 }
 
 class ClinicalTrialMatchTableOptions extends React.Component<
@@ -65,6 +71,8 @@ class ClinicalTrialMatchTableOptions extends React.Component<
             patientLocation: '',
             gender: 'All',
             age: 0,
+            maxDistance: '',
+            isOpened: false,
         };
 
         this.recruiting_values = recruitingValueNames;
@@ -95,6 +103,8 @@ class ClinicalTrialMatchTableOptions extends React.Component<
         var gender: string = this.state.gender;
         var patientLocation = this.state.patientLocation;
         var patientAge = this.state.age;
+        var filterDistance = this.state.isOpened;
+        var maximumDistance = +this.state.maxDistance;
 
         console.group('TRIALS start search');
         console.log(this.state);
@@ -107,7 +117,9 @@ class ClinicalTrialMatchTableOptions extends React.Component<
             necSymbols,
             gender,
             patientLocation,
-            patientAge
+            patientAge,
+            filterDistance,
+            maximumDistance
         );
 
         console.log('smybols');
@@ -115,6 +127,7 @@ class ClinicalTrialMatchTableOptions extends React.Component<
         console.log(recruiting_stati);
         console.log('necSymbols');
         console.log(necSymbols);
+        console.log('dist');
 
         //this.props.store.setSymbolsToSearch(symbols);
     }
@@ -212,6 +225,7 @@ class ClinicalTrialMatchTableOptions extends React.Component<
                             />
                         </div>
                     </DefaultTooltip>
+
                     <DefaultTooltip
                         overlay={STATUS_TOOLTIP}
                         placement="topRight"
@@ -396,6 +410,49 @@ class ClinicalTrialMatchTableOptions extends React.Component<
                                     });
                                 }}
                             />
+                        </div>
+                    </DefaultTooltip>
+
+                    <DefaultTooltip
+                        overlay={MAX_DISTANCE_TOOLTIP}
+                        placement="topRight"
+                        trigger={['hover', 'focus']}
+                        destroyTooltipOnHide={true}
+                    >
+                        <div
+                            style={{
+                                display: 'block',
+                                marginLeft: '5px',
+                                marginBottom: '5px',
+                            }}
+                        >
+                            <div className="config">
+                                <label>
+                                    <input
+                                        className="input"
+                                        type="checkbox"
+                                        checked={this.state.isOpened}
+                                        onChange={({ target: { checked } }) =>
+                                            this.setState({ isOpened: checked })
+                                        }
+                                    />{' '}
+                                    Set maximum distance in km
+                                </label>
+                                <Collapse isOpened={this.state.isOpened}>
+                                    <input
+                                        placeholder="Distance in km"
+                                        value={this.state.maxDistance}
+                                        onChange={event =>
+                                            this.setState({
+                                                maxDistance: event.target.value.replace(
+                                                    /\D/,
+                                                    ''
+                                                ),
+                                            })
+                                        }
+                                    />
+                                </Collapse>
+                            </div>
                         </div>
                     </DefaultTooltip>
                 </div>

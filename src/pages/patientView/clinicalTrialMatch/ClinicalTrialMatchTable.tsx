@@ -296,6 +296,16 @@ export class ClinicalTrialMatchTable extends React.Component<
                         initialItemsPerPage={this.ENTRIES_PER_PAGE}
                     />
                 </div>
+                <div>
+                    Powered by{' '}
+                    <a href="https://oncokb.org/" target="_blank">
+                        OncoKB
+                    </a>{' '}
+                    &{' '}
+                    <a href="https://clinicaltrials.gov/" target="_blank">
+                        ClinicalTrials.gov
+                    </a>
+                </div>
             </div>
         );
     }

@@ -19,12 +19,14 @@ export class StudyListEntry {
     private maximumAge: number;
     private sex: string;
     private explanations: string[];
+    private distance: number;
 
     constructor(study: Study, keyword: string) {
         this.numberFound = 1;
         this.keywordsFound = [keyword];
         this.study = study;
         this.score = 0;
+        this.distance = -1;
 
         try {
             var minimumAgeString =
@@ -58,6 +60,10 @@ export class StudyListEntry {
 
     getNumberFound(): number {
         return this.numberFound;
+    }
+
+    getDistance(): number {
+        return this.distance;
     }
 
     getCities(): string[] {
@@ -146,6 +152,7 @@ export class StudyListEntry {
         );
 
         this.explanations = pnorm.getExplanations();
+        this.distance = patientDistance;
         this.score = pnorm.getRank();
         return this.score;
     }
@@ -167,6 +174,14 @@ export class StudyList {
 
     getStudyListEntires(): Map<string, StudyListEntry> {
         return this.list;
+    }
+
+    filterByDistance(maxDistance: number) {
+        this.list.forEach((value: StudyListEntry, key: string) => {
+            if (value.getDistance() > maxDistance) {
+                this.list.delete(key);
+            }
+        });
     }
 
     calculateScores(
