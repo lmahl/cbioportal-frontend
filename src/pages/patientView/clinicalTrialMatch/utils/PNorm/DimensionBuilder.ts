@@ -2,24 +2,38 @@ import { RankingDimensionName, RankingDimension } from './RankingDimension';
 
 export class DimensionBuilder {
     private AGE_QUERY_WEIGHT = 0.2;
-    private AGE_DOCUMENT_VALUE_TO_WEIGHT = 0.01;
-    private AGE_EXPLANATION = 'Patient age is matching';
+    private AGE_DOCUMENT_VALUE_TO_WEIGHT = 1;
+    private AGE_EXPLANATION = 'Age is matching';
 
     private DISTANCE_QUERY_WEIGHT = 0.6;
-    private DISTANCE_DOCUMENT_VALUE_TO_WEIGHT = 0.01;
-    private DISTANCE_EXPLANATION = 'Distance from patient to ';
+    private DISTANCE_QUERY_DEFINITION_RANGE_UPPER = 0.1;
+    private DISTANCE_QUERY_DEFINITION_RANGE_LOWER = -0.1;
+    private DISTANCE_MAX_DOCUMENT_VALUE = 1000;
+    private DISTANCE_DOCUMENT_WEIGHT_LOWER =
+        (this.DISTANCE_QUERY_WEIGHT +
+            this.DISTANCE_QUERY_DEFINITION_RANGE_LOWER) /
+        this.DISTANCE_QUERY_WEIGHT;
+    private DISTANCE_DOCUMENT_WEIGHT_UPPER =
+        (this.DISTANCE_QUERY_WEIGHT +
+            this.DISTANCE_QUERY_DEFINITION_RANGE_UPPER) /
+        this.DISTANCE_QUERY_WEIGHT;
+    private DISTANCE_STEPSIZE =
+        (this.DISTANCE_DOCUMENT_WEIGHT_UPPER -
+            this.DISTANCE_DOCUMENT_WEIGHT_LOWER) /
+        this.DISTANCE_MAX_DOCUMENT_VALUE;
+    private DISTANCE_EXPLANATION = 'Distance to ';
 
     private CONDITION_QUERY_WEIGHT = 0.8;
-    private CONDITION_DOCUMENT_VALUE_TO_WEIGHT = 0.01;
+    private CONDITION_DOCUMENT_VALUE_TO_WEIGHT = 1;
     private CONDITION_EXPLANATION = 'OncoTree-Code found in study conditions';
 
     private QUERY_QUERY_WEIGHT = 1;
-    private QUERY_DOCUMENT_VALUE_TO_WEIGHT = 0.01;
-    private QUERY_EXPLANATION = 'Found keywords in study: ';
+    private QUERY_DOCUMENT_VALUE_TO_WEIGHT = 1;
+    private QUERY_EXPLANATION = 'Found keywords: ';
 
     private SEX_QUERY_WEIGHT = 0.4;
-    private SEX_DOCUMENT_VALUE_TO_WEIGHT = 0.01;
-    private SEX_EXPLANATION = 'Patient gender is matching';
+    private SEX_DOCUMENT_VALUE_TO_WEIGHT = 1;
+    private SEX_EXPLANATION = 'Gender is matching';
 
     public buildRankingDimension(
         name: RankingDimensionName,
@@ -131,15 +145,25 @@ export class DimensionBuilder {
 
     private calculateDistanceWeight(distance: number): number {
         var curr = distance;
-        if (distance == -1) {
+        console.log('DISTANCE:');
+        console.log(distance);
+        if (distance < 0) {
             return 0;
         } else {
-            curr = 1000 - distance;
-            if (curr < 0) {
-                return 0;
+            if (distance > this.DISTANCE_MAX_DOCUMENT_VALUE) {
+                curr = this.DISTANCE_MAX_DOCUMENT_VALUE;
             }
 
-            return curr;
+            curr = this.DISTANCE_MAX_DOCUMENT_VALUE - curr + 1;
+
+            console.log('DISTANCE_DOCUMENT_WEIGHT_LOWER');
+            console.log(this.DISTANCE_DOCUMENT_WEIGHT_LOWER);
+            console.log(curr);
+            console.log(this.DISTANCE_STEPSIZE);
+            return (
+                this.DISTANCE_DOCUMENT_WEIGHT_LOWER +
+                curr * this.DISTANCE_STEPSIZE
+            );
         }
     }
 }
