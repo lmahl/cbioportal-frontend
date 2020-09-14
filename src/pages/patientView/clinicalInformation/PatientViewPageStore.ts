@@ -266,6 +266,7 @@ export class PatientViewPageStore {
 
     @observable
     public isClinicalTrialsLoading: boolean = false;
+    public showLoadingScreen: boolean = false;
 
     @observable
     private clinicalTrialSerchParams: ClinicalTrialsSearchParams = new ClinicalTrialsSearchParams(
@@ -1753,6 +1754,7 @@ export class PatientViewPageStore {
                     };
                     result.push(newTrial);
                 }
+                this.showLoadingScreen = false;
                 return result;
             },
         },
@@ -1834,7 +1836,8 @@ export class PatientViewPageStore {
             cntr = countries;
         }
 
-        this.isClinicalTrialsLoading = true;
+        this.isClinicalTrialsLoading = !this.isClinicalTrialsLoading;
+        this.showLoadingScreen = true;
 
         this.clinicalTrialSerchParams = new ClinicalTrialsSearchParams(
             cntr,

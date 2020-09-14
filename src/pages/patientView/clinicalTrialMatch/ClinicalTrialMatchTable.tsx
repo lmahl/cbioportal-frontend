@@ -278,6 +278,7 @@ export class ClinicalTrialMatchTable extends React.Component<
     }
 
     render() {
+        var loading = this.props.store.isClinicalTrialsLoading;
         return (
             <div>
                 <div>
@@ -286,7 +287,7 @@ export class ClinicalTrialMatchTable extends React.Component<
                 <div>
                     <LoadingIndicator
                         center={true}
-                        isLoading={this.props.store.isClinicalTrialsLoading}
+                        isLoading={this.props.store.showLoadingScreen}
                         size="big"
                     ></LoadingIndicator>
                     <ClinicalTrialMatchTableComponent
