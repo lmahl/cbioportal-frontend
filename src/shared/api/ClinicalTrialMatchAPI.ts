@@ -1,8 +1,9 @@
 import * as request from 'superagent';
 import { ClinicalTrialsGovStudies } from './ClinicalTrialsGovStudyStrucutre';
 
-import { getQuery } from './ClinicalTrialsGovQueryBuilder';
+import { getQuery, getTumorTypeQuery } from './ClinicalTrialsGovQueryBuilder';
 import { RecruitingStatus } from 'shared/enums/ClinicalTrialsGovRecruitingStatus';
+import { StudiesNCTIds } from './ClinicalTrialsGovNCTIdStudies';
 
 export async function searchStudiesForKeyword(
     keyword: string,
@@ -49,6 +50,51 @@ export async function searchStudiesForKeywordAsString(
     console.log('sending request to: ' + url);
     return request.get(url).then(res => {
         var result: ClinicalTrialsGovStudies = JSON.parse(res.text);
+        return result;
+    });
+}
+
+export async function getStudiesNCTIds(
+    opt_search_symbols: string[],
+    nec_search_symbols: string[],
+    tumor_types: string[],
+    locations: string[],
+    status: RecruitingStatus[]
+): Promise<string[]> {
+    if (tumor_types.length == 0) {
+        return [];
+    }
+
+    const url_raw =
+        'https://clinicaltrials.gov/api/query/field_values?expr=' +
+        getTumorTypeQuery(
+            opt_search_symbols,
+            nec_search_symbols,
+            tumor_types,
+            locations,
+            status
+        ) +
+        '&field=NCTId&fmt=JSON';
+
+    const url = encodeURI(url_raw);
+    console.log('sending request to: ' + url);
+
+    console.log('||||||||||||||||||||||| ' + url_raw);
+
+    return request.get(url).then(res => {
+        var result_obj: StudiesNCTIds = JSON.parse(res.text);
+        var result: string[] = [];
+        for (
+            var i = 0;
+            i < result_obj.FieldValuesResponse.FieldValues.length;
+            i++
+        ) {
+            result.push(
+                result_obj.FieldValuesResponse.FieldValues[i].FieldValue
+            );
+        }
+        console.log('||||||||||||||||||||||||||result');
+        console.log(result);
         return result;
     });
 }

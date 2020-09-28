@@ -225,7 +225,6 @@ class ClinicalTrialMatchTableOptions extends React.Component<
                             />
                         </div>
                     </DefaultTooltip>
-
                     <DefaultTooltip
                         overlay={STATUS_TOOLTIP}
                         placement="topRight"

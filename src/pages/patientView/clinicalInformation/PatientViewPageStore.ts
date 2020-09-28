@@ -132,6 +132,7 @@ import {
     IOncoKBStudyDictionary,
     getAllStudyNctIdsByOncoTreeCode,
     getAllStudyNctIdsByOncoTreeCodes,
+    getStudiesNCTIds,
 } from 'shared/api/ClinicalTrialMatchAPI';
 import { RecruitingStatus } from 'shared/enums/ClinicalTrialsGovRecruitingStatus';
 import { ageAsNumber } from '../clinicalTrialMatch/utils/AgeSexConverter';
@@ -1636,18 +1637,40 @@ export class PatientViewPageStore {
                 var patientData = await this.patientViewData.result;
                 var samples = patientData.samples;
                 var oncotree_codes_in_samples: string[] = [];
+                var tumor_entities: string[] = [];
+                var nctIDs_with_tumor_entity: string[] = [];
 
                 for (var i = 0; i < samples.length; i++) {
                     for (var k = 0; k < samples[i].clinicalData.length; k++) {
                         if (
-                            samples[i].clinicalData[k].value == 'Oncotree Code'
+                            samples[i].clinicalData[k].clinicalAttributeId ==
+                            'ONCOTREE_CODE'
                         ) {
                             oncotree_codes_in_samples.push(
                                 samples[i].clinicalData[k].value
                             );
                         }
+
+                        if (
+                            samples[i].clinicalData[k].clinicalAttributeId ==
+                                'CANCER_TYPE_DETAILED' ||
+                            samples[i].clinicalData[k].clinicalAttributeId ==
+                                'CANCER_TYPE'
+                        ) {
+                            tumor_entities.push(
+                                samples[i].clinicalData[k].value
+                            );
+                        }
                     }
                 }
+
+                nctIDs_with_tumor_entity = await getStudiesNCTIds(
+                    tumor_entities,
+                    nec_search_symbols,
+                    search_symbols,
+                    this.clinicalTrialSerchParams.clinicalTrialsCountires,
+                    this.clinicalTrialSerchParams.clinicalTrialsRecruitingStatus
+                );
 
                 var study_dictionary: IOncoKBStudyDictionary = await this
                     .getStudiesFromOncoKBSortedByCondition.result;
@@ -1660,7 +1683,8 @@ export class PatientViewPageStore {
                     trials_for_condtion,
                     clinicalTrialQuery.age,
                     clinicalTrialQuery.gender,
-                    clinicalTrialQuery.patientLocation
+                    clinicalTrialQuery.patientLocation,
+                    nctIDs_with_tumor_entity
                 );
 
                 if (
@@ -1672,8 +1696,6 @@ export class PatientViewPageStore {
                     );
                 }
 
-                console.log(study_list);
-
                 var tmp: Map<
                     String,
                     StudyListEntry
@@ -1683,14 +1705,12 @@ export class PatientViewPageStore {
                     (a, b) => b.getScore() - a.getScore()
                 );
 
-                console.log(sorted_arr);
                 var res = '["';
                 for (const a of sorted_arr) {
                     res += a.getStudy().ProtocolSection.IdentificationModule
                         .NCTId;
                     res += '","';
                 }
-                console.log(res);
 
                 return sorted_arr;
             },
@@ -1797,7 +1817,6 @@ export class PatientViewPageStore {
         var current_min = 1;
 
         if (num_studies_found <= 0) {
-            console.log('no studies found for keyword ' + keyword);
             return all_studies;
         }
 

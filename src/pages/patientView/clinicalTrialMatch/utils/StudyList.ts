@@ -188,7 +188,8 @@ export class StudyList {
         nct_ids: string[],
         patient_age: number,
         patient_sex: string,
-        patientLocation: string
+        patientLocation: string,
+        nctds_with_tumor_type: string[]
     ) {
         this.list.forEach((value: StudyListEntry, key: string) => {
             var nct_id = value.getStudy().ProtocolSection.IdentificationModule
@@ -202,6 +203,11 @@ export class StudyList {
             var closestCity: string = '';
 
             if (nct_ids.includes(nct_id)) {
+                isConditionMatching = true;
+                console.log('Match found');
+            }
+
+            if (nctds_with_tumor_type.includes(nct_id)) {
                 isConditionMatching = true;
                 console.log('Match found');
             }

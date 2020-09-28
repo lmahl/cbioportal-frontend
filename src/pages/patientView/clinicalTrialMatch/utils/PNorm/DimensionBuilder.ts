@@ -25,7 +25,7 @@ export class DimensionBuilder {
 
     private CONDITION_QUERY_WEIGHT = 0.8;
     private CONDITION_DOCUMENT_VALUE_TO_WEIGHT = 1;
-    private CONDITION_EXPLANATION = 'OncoTree-Code found in study conditions';
+    private CONDITION_EXPLANATION = 'Condition is matching';
 
     private QUERY_QUERY_WEIGHT = 1;
     private QUERY_DOCUMENT_VALUE_TO_WEIGHT = 1;
@@ -145,8 +145,6 @@ export class DimensionBuilder {
 
     private calculateDistanceWeight(distance: number): number {
         var curr = distance;
-        console.log('DISTANCE:');
-        console.log(distance);
         if (distance < 0) {
             return 0;
         } else {
@@ -156,10 +154,6 @@ export class DimensionBuilder {
 
             curr = this.DISTANCE_MAX_DOCUMENT_VALUE - curr + 1;
 
-            console.log('DISTANCE_DOCUMENT_WEIGHT_LOWER');
-            console.log(this.DISTANCE_DOCUMENT_WEIGHT_LOWER);
-            console.log(curr);
-            console.log(this.DISTANCE_STEPSIZE);
             return (
                 this.DISTANCE_DOCUMENT_WEIGHT_LOWER +
                 curr * this.DISTANCE_STEPSIZE
